@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analyzer - PrepWise AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/resume.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>PrepWise AI</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="aptitude.html" class="nav-item">
+                <i class="fas fa-calculator"></i>
+                <span>Aptitude</span>
+            </a>
+            <a href="coding.html" class="nav-item">
+                <i class="fas fa-code"></i>
+                <span>Coding</span>
+            </a>
+            <a href="resume.html" class="nav-item active">
+                <i class="fas fa-file-alt"></i>
+                <span>Resume Analyzer</span>
+            </a>
+            <a href="interview.html" class="nav-item">
+                <i class="fas fa-microphone"></i>
+                <span>Mock Interview</span>
+            </a>
+            <a href="roadmap.html" class="nav-item">
+                <i class="fas fa-route"></i>
+                <span>Company Roadmaps</span>
+            </a>
+            <a href="leaderboard.html" class="nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>AI Resume Analyzer</h2>
+            </div>
+            <div class="topbar-right">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-menu">
+                    <img src="https://i.pravatar.cc/100?img=8" alt="User" class="user-avatar">
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <!-- Upload Section -->
+            <section class="upload-section" id="uploadSection">
+                <div class="upload-card">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Upload Your Resume</h3>
+                    <p>Get instant AI-powered analysis and ATS score</p>
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" hidden>
+                        <i class="fas fa-file-upload"></i>
+                        <p>Drag & drop your resume here or <span class="browse-link">browse</span></p>
+                        <small>Supports PDF, DOC, DOCX (Max 5MB)</small>
+                    </div>
+                    <button class="btn btn-primary" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Upload Resume
+                    </button>
+                </div>
+            </section>
+
+            <!-- Analysis Section -->
+            <section class="analysis-section" id="analysisSection" style="display: none;">
+                <div class="analysis-header">
+                    <h3>Resume Analysis Report</h3>
+                    <button class="btn btn-outline btn-sm" onclick="uploadAnother()">
+                        <i class="fas fa-plus"></i> Upload Another
+                    </button>
+                </div>
+
+                <!-- ATS Score -->
+                <div class="ats-score-card">
+                    <div class="score-left">
+                        <h3>ATS Score</h3>
+                        <p>Your resume's compatibility with Applicant Tracking Systems</p>
+                    </div>
+                    <div class="score-circle-container">
+                        <svg class="score-circle" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="90" class="score-bg" />
+                            <circle cx="100" cy="100" r="90" class="score-fill" id="scoreCircle" />
+                        </svg>
+                        <div class="score-text">
+                            <h2 id="atsScore">0</h2>
+                            <p>/ 100</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Grid -->
+                <div class="analysis-grid">
+                    <!-- Skills Found -->
+                    <div class="analysis-card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-check-circle"></i> Skills Found</h4>
+                        </div>
+                        <div class="skills-list" id="skillsList">
+                            <!-- Skills will be loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Missing Keywords -->
+                    <div class="analysis-card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-exclamation-circle"></i> Missing Keywords</h4>
+                        </div>
+                        <div class="keywords-list" id="keywordsList">
+                            <!-- Keywords will be loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Strengths -->
+                    <div class="analysis-card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-star"></i> Strengths</h4>
+                        </div>
+                        <ul class="feedback-list" id="strengthsList">
+                            <!-- Strengths will be loaded dynamically -->
+                        </ul>
+                    </div>
+
+                    <!-- Improvements -->
+                    <div class="analysis-card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-lightbulb"></i> Improvements</h4>
+                        </div>
+                        <ul class="feedback-list" id="improvementsList">
+                            <!-- Improvements will be loaded dynamically -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Section Checklist -->
+                <div class="checklist-card">
+                    <h4>Resume Sections Checklist</h4>
+                    <div class="checklist-grid" id="checklistGrid">
+                        <!-- Checklist items will be loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Previous Reports -->
+            <section class="reports-section">
+                <h3>Previous Reports</h3>
+                <div class="reports-grid" id="reportsGrid">
+                    <!-- Previous reports will be loaded dynamically -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/resume.js"></script>
+</body>
+</html>

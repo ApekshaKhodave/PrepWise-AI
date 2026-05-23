@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aptitude Tests - PrepWise AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/aptitude.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+    <!-- Sidebar (same as dashboard) -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>PrepWise AI</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="aptitude.html" class="nav-item active">
+                <i class="fas fa-calculator"></i>
+                <span>Aptitude</span>
+            </a>
+            <a href="coding.html" class="nav-item">
+                <i class="fas fa-code"></i>
+                <span>Coding</span>
+            </a>
+            <a href="resume.html" class="nav-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Resume Analyzer</span>
+            </a>
+            <a href="interview.html" class="nav-item">
+                <i class="fas fa-microphone"></i>
+                <span>Mock Interview</span>
+            </a>
+            <a href="roadmap.html" class="nav-item">
+                <i class="fas fa-route"></i>
+                <span>Company Roadmaps</span>
+            </a>
+            <a href="leaderboard.html" class="nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>Aptitude Tests</h2>
+            </div>
+            <div class="topbar-right">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-menu">
+                    <img src="https://i.pravatar.cc/100?img=8" alt="User" class="user-avatar">
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <!-- Test Categories -->
+            <section class="test-categories">
+                <div class="category-card" data-category="quantitative">
+                    <div class="category-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3>Quantitative Aptitude</h3>
+                    <p>Numbers, percentages, ratios, and more</p>
+                    <div class="category-stats">
+                        <span><i class="fas fa-check-circle"></i> 45 Tests</span>
+                        <span><i class="fas fa-clock"></i> 30-60 min</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="showTestOptions('quantitative')">
+                        Start Test
+                    </button>
+                </div>
+                <div class="category-card" data-category="logical">
+                    <div class="category-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Logical Reasoning</h3>
+                    <p>Patterns, sequences, and logical thinking</p>
+                    <div class="category-stats">
+                        <span><i class="fas fa-check-circle"></i> 38 Tests</span>
+                        <span><i class="fas fa-clock"></i> 30-45 min</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="showTestOptions('logical')">
+                        Start Test
+                    </button>
+                </div>
+                <div class="category-card" data-category="verbal">
+                    <div class="category-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>Verbal Ability</h3>
+                    <p>Grammar, vocabulary, and comprehension</p>
+                    <div class="category-stats">
+                        <span><i class="fas fa-check-circle"></i> 32 Tests</span>
+                        <span><i class="fas fa-clock"></i> 25-40 min</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="showTestOptions('verbal')">
+                        Start Test
+                    </button>
+                </div>
+            </section>
+
+            <!-- Test History -->
+            <section class="test-history">
+                <div class="card-header">
+                    <h3>Recent Test Results</h3>
+                    <button class="btn btn-sm btn-outline">View All</button>
+                </div>
+                <div class="history-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Test Name</th>
+                                <th>Category</th>
+                                <th>Score</th>
+                                <th>Accuracy</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr>
+                                <td>Quantitative Test #12</td>
+                                <td><span class="badge badge-blue">Quantitative</span></td>
+                                <td><strong>85%</strong></td>
+                                <td>17/20</td>
+                                <td>2 hours ago</td>
+                                <td><button class="btn btn-sm btn-outline">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Logical Reasoning #8</td>
+                                <td><span class="badge badge-purple">Logical</span></td>
+                                <td><strong>92%</strong></td>
+                                <td>23/25</td>
+                                <td>Yesterday</td>
+                                <td><button class="btn btn-sm btn-outline">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Test Options Modal -->
+    <div id="testModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Test Difficulty</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="difficulty-options">
+                    <div class="difficulty-card" onclick="startTest('easy')">
+                        <i class="fas fa-smile"></i>
+                        <h4>Easy</h4>
+                        <p>10 Questions • 15 Minutes</p>
+                    </div>
+                    <div class="difficulty-card" onclick="startTest('medium')">
+                        <i class="fas fa-meh"></i>
+                        <h4>Medium</h4>
+                        <p>15 Questions • 25 Minutes</p>
+                    </div>
+                    <div class="difficulty-card" onclick="startTest('hard')">
+                        <i class="fas fa-fire"></i>
+                        <h4>Hard</h4>
+                        <p>20 Questions • 35 Minutes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Interface -->
+    <div id="testInterface" class="test-interface" style="display: none;">
+        <div class="test-header">
+            <div class="test-info">
+                <h3 id="testTitle">Quantitative Aptitude - Easy</h3>
+                <p>Question <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span></p>
+            </div>
+            <div class="test-timer">
+                <i class="fas fa-clock"></i>
+                <span id="timer">15:00</span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="submitTest()">Submit Test</button>
+        </div>
+        <div class="test-body">
+            <div class="question-card">
+                <h4 id="questionText">Loading question...</h4>
+                <div class="options" id="optionsContainer">
+                    <!-- Options will be loaded dynamically -->
+                </div>
+            </div>
+            <div class="test-navigation">
+                <button class="btn btn-outline" onclick="previousQuestion()">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <div class="question-palette" id="questionPalette">
+                    <!-- Question numbers will be loaded dynamically -->
+                </div>
+                <button class="btn btn-primary" onclick="nextQuestion()">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content result-modal">
+            <div class="result-header">
+                <i class="fas fa-trophy"></i>
+                <h2>Test Completed!</h2>
+            </div>
+            <div class="result-body">
+                <div class="result-score">
+                    <div class="score-circle">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" />
+                            <circle cx="50" cy="50" r="45" id="scoreCircle" />
+                        </svg>
+                        <div class="score-text">
+                            <h3 id="finalScore">0%</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h4 id="correctAnswers">0</h4>
+                            <p>Correct</p>
+                        </div>
+                    </div>
+                    <div class="result-stat">
+                        <i class="fas fa-times-circle"></i>
+                        <div>
+                            <h4 id="wrongAnswers">0</h4>
+                            <p>Wrong</p>
+                        </div>
+                    </div>
+                    <div class="result-stat">
+                        <i class="fas fa-star"></i>
+                        <div>
+                            <h4 id="xpEarned">0</h4>
+                            <p>XP Earned</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="weak-topics">
+                    <h4>Topics to Improve</h4>
+                    <div id="weakTopicsList"></div>
+                </div>
+                <div class="result-actions">
+                    <button class="btn btn-outline" onclick="closeResult()">Close</button>
+                    <button class="btn btn-primary" onclick="retakeTest()">Retake Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/aptitude.js"></script>
+</body>
+</html>

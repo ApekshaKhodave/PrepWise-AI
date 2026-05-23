@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PrepWise AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>PrepWise AI</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="aptitude.html" class="nav-item">
+                <i class="fas fa-calculator"></i>
+                <span>Aptitude</span>
+            </a>
+            <a href="coding.html" class="nav-item">
+                <i class="fas fa-code"></i>
+                <span>Coding</span>
+            </a>
+            <a href="resume.html" class="nav-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Resume Analyzer</span>
+            </a>
+            <a href="interview.html" class="nav-item">
+                <i class="fas fa-microphone"></i>
+                <span>Mock Interview</span>
+            </a>
+            <a href="roadmap.html" class="nav-item">
+                <i class="fas fa-route"></i>
+                <span>Company Roadmaps</span>
+            </a>
+            <a href="leaderboard.html" class="nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn btn-outline btn-sm" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </button>
+                <div class="user-menu">
+                    <img src="https://i.pravatar.cc/100?img=8" alt="User" class="user-avatar">
+                    <span class="user-name" id="userName">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <div class="welcome-card">
+                    <div class="welcome-text">
+                        <h1>Welcome back, <span id="welcomeName">Student</span>! 👋</h1>
+                        <p>Ready to continue your placement preparation journey?</p>
+                    </div>
+                    <div class="streak-badge">
+                        <i class="fas fa-fire"></i>
+                        <div>
+                            <h3 id="streakCount">0</h3>
+                            <p>Day Streak</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Cards -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="xpCount">0</h3>
+                        <p>Total XP</p>
+                    </div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> 12%
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="testsCount">0</h3>
+                        <p>Tests Completed</p>
+                    </div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> 8%
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="codingCount">0</h3>
+                        <p>Problems Solved</p>
+                    </div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> 15%
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="resumeScore">0</h3>
+                        <p>Resume Score</p>
+                    </div>
+                    <div class="stat-trend">
+                        <i class="fas fa-minus"></i> 0%
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3>Performance Overview</h3>
+                        <select class="chart-filter">
+                            <option>Last 7 Days</option>
+                            <option>Last 30 Days</option>
+                            <option>Last 3 Months</option>
+                        </select>
+                    </div>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3>Skill Distribution</h3>
+                    </div>
+                    <canvas id="skillChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Activity Section -->
+            <section class="activity-section">
+                <div class="activity-card">
+                    <div class="card-header">
+                        <h3>Recent Activity</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon blue">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div class="activity-info">
+                                <h4>Completed Quantitative Test</h4>
+                                <p>Score: 85% • 2 hours ago</p>
+                            </div>
+                            <span class="activity-xp">+85 XP</span>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon green">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="activity-info">
+                                <h4>Solved "Two Sum" Problem</h4>
+                                <p>Difficulty: Easy • 5 hours ago</p>
+                            </div>
+                            <span class="activity-xp">+50 XP</span>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon purple">
+                                <i class="fas fa-microphone"></i>
+                            </div>
+                            <div class="activity-info">
+                                <h4>Completed Mock Interview</h4>
+                                <p>Score: 78% • Yesterday</p>
+                            </div>
+                            <span class="activity-xp">+78 XP</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="upcoming-card">
+                    <div class="card-header">
+                        <h3>Upcoming Tests</h3>
+                    </div>
+                    <div class="upcoming-list">
+                        <div class="upcoming-item">
+                            <div class="upcoming-date">
+                                <span class="day">15</span>
+                                <span class="month">JAN</span>
+                            </div>
+                            <div class="upcoming-info">
+                                <h4>Logical Reasoning Test</h4>
+                                <p><i class="fas fa-clock"></i> 60 minutes</p>
+                            </div>
+                            <button class="btn btn-sm btn-primary">Start</button>
+                        </div>
+                        <div class="upcoming-item">
+                            <div class="upcoming-date">
+                                <span class="day">16</span>
+                                <span class="month">JAN</span>
+                            </div>
+                            <div class="upcoming-info">
+                                <h4>Coding Contest</h4>
+                                <p><i class="fas fa-clock"></i> 90 minutes</p>
+                            </div>
+                            <button class="btn btn-sm btn-outline">Remind Me</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="actions-grid">
+                    <a href="aptitude.html" class="action-card">
+                        <i class="fas fa-calculator"></i>
+                        <span>Take Aptitude Test</span>
+                    </a>
+                    <a href="coding.html" class="action-card">
+                        <i class="fas fa-code"></i>
+                        <span>Practice Coding</span>
+                    </a>
+                    <a href="resume.html" class="action-card">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Analyze Resume</span>
+                    </a>
+                    <a href="interview.html" class="action-card">
+                        <i class="fas fa-microphone"></i>
+                        <span>Mock Interview</span>
+                    </a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mock Interview - PrepWise AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/interview.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>PrepWise AI</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="aptitude.html" class="nav-item">
+                <i class="fas fa-calculator"></i>
+                <span>Aptitude</span>
+            </a>
+            <a href="coding.html" class="nav-item">
+                <i class="fas fa-code"></i>
+                <span>Coding</span>
+            </a>
+            <a href="resume.html" class="nav-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Resume Analyzer</span>
+            </a>
+            <a href="interview.html" class="nav-item active">
+                <i class="fas fa-microphone"></i>
+                <span>Mock Interview</span>
+            </a>
+            <a href="roadmap.html" class="nav-item">
+                <i class="fas fa-route"></i>
+                <span>Company Roadmaps</span>
+            </a>
+            <a href="leaderboard.html" class="nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>AI Mock Interview</h2>
+            </div>
+            <div class="topbar-right">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-menu">
+                    <img src="https://i.pravatar.cc/100?img=8" alt="User" class="user-avatar">
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <!-- Interview Setup -->
+            <section class="interview-setup" id="setupSection">
+                <div class="setup-card">
+                    <div class="ai-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h2>AI Interview Assistant</h2>
+                    <p>Practice with our AI interviewer and get real-time feedback</p>
+                    
+                    <div class="interview-types">
+                        <div class="type-card" data-type="technical">
+                            <i class="fas fa-code"></i>
+                            <h4>Technical</h4>
+                            <p>DSA, System Design, Tech Stack</p>
+                        </div>
+                        <div class="type-card" data-type="hr">
+                            <i class="fas fa-users"></i>
+                            <h4>HR Round</h4>
+                            <p>Behavioral, Situational Questions</p>
+                        </div>
+                        <div class="type-card" data-type="behavioral">
+                            <i class="fas fa-comments"></i>
+                            <h4>Behavioral</h4>
+                            <p>STAR Method, Past Experiences</p>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-lg" id="startInterviewBtn">
+                        <i class="fas fa-play"></i> Start Interview
+                    </button>
+                </div>
+            </section>
+
+            <!-- Interview Interface -->
+            <section class="interview-interface" id="interviewSection" style="display: none;">
+                <div class="interview-grid">
+                    <!-- Video Section -->
+                    <div class="video-section">
+                        <div class="video-placeholder">
+                            <i class="fas fa-video"></i>
+                            <p>Camera Preview</p>
+                        </div>
+                        <div class="ai-assistant">
+                            <div class="assistant-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="assistant-status">
+                                <span class="status-dot"></span>
+                                <span>AI Listening...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question Section -->
+                    <div class="question-section">
+                        <div class="question-header">
+                            <h3>Question <span id="questionNumber">1</span> of <span id="totalQuestions">5</span></h3>
+                            <div class="timer">
+                                <i class="fas fa-clock"></i>
+                                <span id="questionTimer">00:00</span>
+                            </div>
+                        </div>
+                        <div class="question-content">
+                            <p id="currentQuestion">Loading question...</p>
+                        </div>
+                        <div class="answer-section">
+                            <textarea id="answerInput" placeholder="Type your answer here..." rows="8"></textarea>
+                            <div class="answer-actions">
+                                <button class="btn btn-outline" onclick="skipQuestion()">
+                                    <i class="fas fa-forward"></i> Skip
+                                </button>
+                                <button class="btn btn-primary" onclick="submitAnswer()">
+                                    <i class="fas fa-check"></i> Submit Answer
+                                </button>
+                            </div>
+                        </div>
+                        <div class="voice-controls">
+                            <button class="btn btn-icon" id="micBtn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <p>Click to use voice input</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-outline end-interview-btn" onclick="endInterview()">
+                    <i class="fas fa-stop"></i> End Interview
+                </button>
+            </section>
+
+            <!-- Feedback Section -->
+            <section class="feedback-section" id="feedbackSection" style="display: none;">
+                <div class="feedback-header">
+                    <i class="fas fa-trophy"></i>
+                    <h2>Interview Completed!</h2>
+                    <p>Here's your detailed performance analysis</p>
+                </div>
+
+                <div class="overall-score">
+                    <div class="score-circle-container">
+                        <svg class="score-circle" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="90" class="score-bg" />
+                            <circle cx="100" cy="100" r="90" class="score-fill" id="overallScoreCircle" />
+                        </svg>
+                        <div class="score-text">
+                            <h2 id="overallScore">0</h2>
+                            <p>Overall Score</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h4>Confidence</h4>
+                        <div class="metric-bar">
+                            <div class="metric-fill" id="confidenceBar"></div>
+                        </div>
+                        <span id="confidenceScore">0%</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Communication</h4>
+                        <div class="metric-bar">
+                            <div class="metric-fill" id="communicationBar"></div>
+                        </div>
+                        <span id="communicationScore">0%</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Technical Accuracy</h4>
+                        <div class="metric-bar">
+                            <div class="metric-fill" id="technicalBar"></div>
+                        </div>
+                        <span id="technicalScore">0%</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Clarity</h4>
+                        <div class="metric-bar">
+                            <div class="metric-fill" id="clarityBar"></div>
+                        </div>
+                        <span id="clarityScore">0%</span>
+                    </div>
+                </div>
+
+                <div class="feedback-details">
+                    <div class="feedback-card">
+                        <h4><i class="fas fa-star"></i> Strengths</h4>
+                        <ul id="strengthsList"></ul>
+                    </div>
+                    <div class="feedback-card">
+                        <h4><i class="fas fa-lightbulb"></i> Areas to Improve</h4>
+                        <ul id="improvementsList"></ul>
+                    </div>
+                </div>
+
+                <div class="feedback-actions">
+                    <button class="btn btn-outline" onclick="viewHistory()">View History</button>
+                    <button class="btn btn-primary" onclick="retakeInterview()">Take Another Interview</button>
+                </div>
+            </section>
+
+            <!-- Interview History -->
+            <section class="history-section">
+                <h3>Interview History</h3>
+                <div class="history-grid" id="historyGrid">
+                    <!-- History items will be loaded dynamically -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/interview.js"></script>
+</body>
+</html>

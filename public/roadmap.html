@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Roadmaps - PrepWise AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/roadmap.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>PrepWise AI</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="aptitude.html" class="nav-item">
+                <i class="fas fa-calculator"></i>
+                <span>Aptitude</span>
+            </a>
+            <a href="coding.html" class="nav-item">
+                <i class="fas fa-code"></i>
+                <span>Coding</span>
+            </a>
+            <a href="resume.html" class="nav-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Resume Analyzer</span>
+            </a>
+            <a href="interview.html" class="nav-item">
+                <i class="fas fa-microphone"></i>
+                <span>Mock Interview</span>
+            </a>
+            <a href="roadmap.html" class="nav-item active">
+                <i class="fas fa-route"></i>
+                <span>Company Roadmaps</span>
+            </a>
+            <a href="leaderboard.html" class="nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>Company Roadmaps</h2>
+            </div>
+            <div class="topbar-right">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-menu">
+                    <img src="https://i.pravatar.cc/100?img=8" alt="User" class="user-avatar">
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <!-- Company Cards -->
+            <section class="companies-grid">
+                <div class="company-card" data-company="google">
+                    <div class="company-logo google">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <h3>Google</h3>
+                    <p>Complete preparation roadmap for Google interviews</p>
+                    <div class="company-stats">
+                        <span><i class="fas fa-users"></i> 1.2k placed</span>
+                        <span><i class="fas fa-clock"></i> 3-6 months</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="viewRoadmap('google')">
+                        View Roadmap
+                    </button>
+                </div>
+
+                <div class="company-card" data-company="microsoft">
+                    <div class="company-logo microsoft">
+                        <i class="fab fa-microsoft"></i>
+                    </div>
+                    <h3>Microsoft</h3>
+                    <p>Step-by-step guide for Microsoft placement</p>
+                    <div class="company-stats">
+                        <span><i class="fas fa-users"></i> 980 placed</span>
+                        <span><i class="fas fa-clock"></i> 3-5 months</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="viewRoadmap('microsoft')">
+                        View Roadmap
+                    </button>
+                </div>
+
+                <div class="company-card" data-company="amazon">
+                    <div class="company-logo amazon">
+                        <i class="fab fa-amazon"></i>
+                    </div>
+                    <h3>Amazon</h3>
+                    <p>Amazon's leadership principles and technical prep</p>
+                    <div class="company-stats">
+                        <span><i class="fas fa-users"></i> 1.5k placed</span>
+                        <span><i class="fas fa-clock"></i> 2-4 months</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="viewRoadmap('amazon')">
+                        View Roadmap
+                    </button>
+                </div>
+
+                <div class="company-card" data-company="tcs">
+                    <div class="company-logo tcs">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>TCS</h3>
+                    <p>TCS NQT and interview preparation guide</p>
+                    <div class="company-stats">
+                        <span><i class="fas fa-users"></i> 3.2k placed</span>
+                        <span><i class="fas fa-clock"></i> 1-2 months</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="viewRoadmap('tcs')">
+                        View Roadmap
+                    </button>
+                </div>
+
+                <div class="company-card" data-company="infosys">
+                    <div class="company-logo infosys">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>Infosys</h3>
+                    <p>Infosys placement and training preparation</p>
+                    <div class="company-stats">
+                        <span><i class="fas fa-users"></i> 2.8k placed</span>
+                        <span><i class="fas fa-clock"></i> 1-2 months</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="viewRoadmap('infosys')">
+                        View Roadmap
+                    </button>
+                </div>
+
+                <div class="company-card" data-company="wipro">
+                    <div class="company-logo wipro">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3>Wipro</h3>
+                    <p>Wipro WILP and placement preparation</p>
+                    <div class="company-stats">
+                        <span><i class="fas fa-users"></i> 2.1k placed</span>
+                        <span><i class="fas fa-clock"></i> 1-3 months</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="viewRoadmap('wipro')">
+                        View Roadmap
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Roadmap Detail Modal -->
+    <div id="roadmapModal" class="modal modal-large">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="roadmapTitle">Google Preparation Roadmap</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="roadmap-timeline" id="roadmapTimeline">
+                    <!-- Timeline will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/roadmap.js"></script>
+</body>
+</html>

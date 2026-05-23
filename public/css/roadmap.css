@@ -1,0 +1,186 @@
+/* Company Roadmap Styles */
+.companies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
+}
+
+.company-card {
+    background: var(--bg-secondary);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.company-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-xl);
+}
+
+.company-logo {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+}
+
+.company-logo.google {
+    background: linear-gradient(135deg, #4285F4, #34A853);
+}
+
+.company-logo.microsoft {
+    background: linear-gradient(135deg, #00A4EF, #7FBA00);
+}
+
+.company-logo.amazon {
+    background: linear-gradient(135deg, #FF9900, #146EB4);
+}
+
+.company-logo.tcs {
+    background: linear-gradient(135deg, #0F62FE, #0043CE);
+}
+
+.company-logo.infosys {
+    background: linear-gradient(135deg, #007CC3, #0099CC);
+}
+
+.company-logo.wipro {
+    background: linear-gradient(135deg, #6C63FF, #8B5CF6);
+}
+
+.company-card h3 {
+    margin-bottom: var(--spacing-sm);
+}
+
+.company-card p {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.company-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.company-stats span {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+/* Roadmap Modal */
+.modal-large .modal-content {
+    max-width: 900px;
+    width: 90%;
+}
+
+.roadmap-timeline {
+    padding: var(--spacing-lg);
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 3rem;
+    padding-bottom: var(--spacing-xl);
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 2rem;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+}
+
+.timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 0 0 4px var(--bg-secondary);
+}
+
+.timeline-content {
+    background: var(--bg-tertiary);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+}
+
+.timeline-content h4 {
+    margin-bottom: var(--spacing-md);
+    color: var(--primary);
+}
+
+.timeline-content p {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+}
+
+.skills-required {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.skill-badge {
+    padding: 0.25rem 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    color: var(--primary);
+}
+
+.resources-list {
+    list-style: none;
+}
+
+.resources-list li {
+    padding: var(--spacing-xs) 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.resources-list li::before {
+    content: '→';
+    color: var(--primary);
+    margin-right: var(--spacing-sm);
+}
+
+.timeline-duration {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 0.25rem 0.75rem;
+    background: rgba(108, 99, 255, 0.1);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    color: var(--primary);
+    margin-top: var(--spacing-sm);
+}
