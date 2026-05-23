@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "AI-Powered Placement Preparation Portal",
   "main": "server.js",
+  "engines": {
+    "node": ">=14.x"
+  },
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "echo 'Build complete'"
   },
   "keywords": ["placement", "ai", "education", "interview"],
-  "author": "",
+  "author": "Apeksha Khodave",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
