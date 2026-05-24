@@ -20,8 +20,28 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+const rawBodySaver = (req, res, buf, encoding) => {
+  if (buf && buf.length) {
+    req.rawBody = buf.toString(encoding || 'utf8');
+  }
+};
+
+app.use(express.json({ verify: rawBodySaver }));
+app.use(express.urlencoded({ extended: true, verify: rawBodySaver }));
+
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('JSON parse error:', err.message, 'rawBody:', req.rawBody);
+    try {
+      req.body = JSON.parse(req.rawBody || '{}');
+      return next();
+    } catch (parseErr) {
+      return res.status(400).json({ error: 'Invalid JSON body' });
+    }
+  }
+  next(err);
+});
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
