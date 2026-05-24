@@ -1,6 +1,9 @@
 // Aptitude Test JavaScript
 
-const API_URL = 'http://localhost:5000/api';
+// API Configuration - works for both local and production
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000/api' 
+    : '/api';
 let currentCategory = '';
 let currentDifficulty = '';
 let questions = [];
