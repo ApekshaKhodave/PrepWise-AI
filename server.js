@@ -21,26 +21,23 @@ const app = express();
 // Middleware
 app.use(cors());
 
-const rawBodySaver = (req, res, buf, encoding) => {
-  if (buf && buf.length) {
-    req.rawBody = buf.toString(encoding || 'utf8');
-  }
-};
+app.use(express.raw({
+  type: ['application/json', 'application/*+json'],
+  limit: '1mb'
+}));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-app.use(express.json({ verify: rawBodySaver }));
-app.use(express.urlencoded({ extended: true, verify: rawBodySaver }));
-
-app.use((err, req, res, next) => {
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    console.error('JSON parse error:', err.message, 'rawBody:', req.rawBody);
+app.use((req, res, next) => {
+  if (req.is('application/json') && Buffer.isBuffer(req.body)) {
+    const raw = req.body.toString('utf8');
     try {
-      req.body = JSON.parse(req.rawBody || '{}');
-      return next();
-    } catch (parseErr) {
+      req.body = raw ? JSON.parse(raw) : {};
+    } catch (err) {
+      console.error('Invalid JSON body received:', raw);
       return res.status(400).json({ error: 'Invalid JSON body' });
     }
   }
-  next(err);
+  next();
 });
 
 // Serve static files
