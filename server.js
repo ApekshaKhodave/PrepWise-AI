@@ -21,27 +21,28 @@ const app = express();
 // Middleware
 app.use(cors());
 
-app.use(express.json({
-  type: '*/*',
-  limit: '1mb',
-  strict: false,
-  verify: (req, res, buf) => {
-    req.rawBody = buf.toString('utf8');
-  }
+app.use(express.text({
+  type: ['application/json', 'application/*+json'],
+  limit: '1mb'
 }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-app.use((err, req, res, next) => {
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    console.error(JSON.stringify({
-      event: 'invalid_json',
-      error: err.message,
-      contentType: req.headers['content-type'],
-      rawBody: req.rawBody
-    }));
-    return res.status(400).json({ error: 'Invalid JSON body' });
+app.use((req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('application/json') && typeof req.body === 'string') {
+    try {
+      req.body = req.body ? JSON.parse(req.body) : {};
+    } catch (err) {
+      console.error(JSON.stringify({
+        event: 'invalid_json',
+        error: err.message,
+        contentType,
+        rawBody: req.body
+      }));
+      return res.status(400).json({ error: 'Invalid JSON body' });
+    }
   }
-  next(err);
+  next();
 });
 
 // Serve static files
