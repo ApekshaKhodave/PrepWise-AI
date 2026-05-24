@@ -33,7 +33,12 @@ app.use((req, res, next) => {
     try {
       req.body = raw ? JSON.parse(raw) : {};
     } catch (err) {
-      console.error('Invalid JSON body received:', raw);
+      console.error(JSON.stringify({
+        event: 'invalid_json',
+        error: err.message,
+        contentType: req.headers['content-type'],
+        rawBody: raw
+      }));
       return res.status(400).json({ error: 'Invalid JSON body' });
     }
   }
