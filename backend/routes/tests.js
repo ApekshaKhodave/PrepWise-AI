@@ -105,7 +105,8 @@ router.get('/history', auth, async (req, res) => {
   try {
     const tests = await Test.find({ userId: req.userId })
       .sort({ createdAt: -1 })
-      .limit(10);
+      .limit(10)
+      .lean();
     
     res.json({ tests });
   } catch (error) {

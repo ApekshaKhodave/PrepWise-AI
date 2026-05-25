@@ -33,4 +33,6 @@ const interviewFeedbackSchema = new mongoose.Schema({
   timestamps: true
 });
 
+interviewFeedbackSchema.index({ userId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('InterviewFeedback', interviewFeedbackSchema);

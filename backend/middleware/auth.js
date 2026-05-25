@@ -12,7 +12,7 @@ const auth = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Try to find user with timeout
-    const user = await User.findById(decoded.userId).maxTimeMS(3000).catch(() => null);
+    const user = await User.findById(decoded.userId).maxTimeMS(10000).catch(() => null);
 
     if (!user) {
       // Demo mode - create mock user

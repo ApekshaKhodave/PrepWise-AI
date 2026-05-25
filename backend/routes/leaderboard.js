@@ -10,7 +10,8 @@ router.get('/', auth, async (req, res) => {
     const users = await User.find()
       .select('name email profilePhoto xp streak testsCompleted codingProblemsSolved')
       .sort({ xp: -1 })
-      .limit(50);
+      .limit(50)
+      .lean();
 
     const leaderboard = users.map((user, index) => ({
       rank: index + 1,

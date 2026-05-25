@@ -98,7 +98,8 @@ router.get('/reports', auth, async (req, res) => {
   try {
     const reports = await ResumeReport.find({ userId: req.userId })
       .sort({ createdAt: -1 })
-      .limit(5);
+      .limit(5)
+      .lean();
     
     res.json({ reports });
   } catch (error) {

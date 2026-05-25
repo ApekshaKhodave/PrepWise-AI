@@ -104,7 +104,8 @@ router.get('/history', auth, async (req, res) => {
   try {
     const interviews = await InterviewFeedback.find({ userId: req.userId })
       .sort({ createdAt: -1 })
-      .limit(10);
+      .limit(10)
+      .lean();
     
     res.json({ interviews });
   } catch (error) {

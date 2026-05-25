@@ -12,7 +12,7 @@ router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
 
     // Check if user exists
-    const existingUser = await User.findOne({ email }).maxTimeMS(3000).catch(() => null);
+    const existingUser = await User.findOne({ email }).maxTimeMS(10000).catch(() => null);
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered' });
     }
@@ -63,7 +63,7 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     // Find user with timeout
-    const user = await User.findOne({ email }).maxTimeMS(3000).catch(() => null);
+    const user = await User.findOne({ email }).maxTimeMS(10000).catch(() => null);
     
     if (!user) {
       // Demo mode - create mock user for login

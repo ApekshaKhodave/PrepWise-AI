@@ -40,4 +40,6 @@ const codingProblemSchema = new mongoose.Schema({
   timestamps: true
 });
 
+codingProblemSchema.index({ title: 'text', difficulty: 1, createdAt: -1 });
+
 module.exports = mongoose.model('CodingProblem', codingProblemSchema);

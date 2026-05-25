@@ -149,6 +149,11 @@ function setupEventListeners() {
     
     // Theme toggle
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        applyTheme(savedTheme);
+    }
 }
 
 // Update Profile
@@ -205,8 +210,18 @@ function handleAvatarUpload(e) {
 function applyTheme(theme) {
     if (theme === 'dark') {
         document.body.classList.add('dark-theme');
+        const icon = document.querySelector('#themeToggle i');
+        if (icon) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
     } else {
         document.body.classList.remove('dark-theme');
+        const icon = document.querySelector('#themeToggle i');
+        if (icon) {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
     }
     localStorage.setItem('theme', theme);
 }

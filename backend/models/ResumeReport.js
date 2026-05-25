@@ -36,4 +36,6 @@ const resumeReportSchema = new mongoose.Schema({
   timestamps: true
 });
 
+resumeReportSchema.index({ userId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('ResumeReport', resumeReportSchema);
