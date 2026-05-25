@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const fetch = require('node-fetch');
 
 const router = express.Router();
 
@@ -144,3 +145,76 @@ router.get('/me', auth, async (req, res) => {
 });
 
 module.exports = router;
+
+// Google OAuth2 routes
+router.get('/google', (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const redirectUri = process.env.GOOGLE_CALLBACK_URL || `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/google/callback`;
+
+  if (!clientId) {
+    return res.status(501).json({ error: 'Google OAuth not configured' });
+  }
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'openid profile email',
+    access_type: 'offline',
+    prompt: 'consent'
+  });
+
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+});
+
+router.get('/google/callback', async (req, res) => {
+  const code = req.query.code;
+  if (!code) return res.redirect('/login.html');
+
+  try {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: process.env.GOOGLE_CALLBACK_URL || `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/google/callback`,
+        grant_type: 'authorization_code'
+      })
+    });
+
+    const tokenJson = await tokenRes.json();
+    const accessToken = tokenJson.access_token;
+
+    if (!accessToken) return res.redirect('/login.html');
+
+    const profileRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo?access_token=' + accessToken);
+    const profile = await profileRes.json();
+
+    let user = await User.findOne({ email: profile.email }).catch(() => null);
+
+    if (!user) {
+      user = new User({
+        name: profile.name || (profile.email ? profile.email.split('@')[0] : 'Google User'),
+        email: profile.email,
+        password: Math.random().toString(36).slice(2),
+        profilePhoto: profile.picture || 'default-avatar.png'
+      });
+
+      await user.save().catch(() => {
+        user._id = Date.now().toString();
+      });
+    }
+
+    const token = jwt.sign({ userId: user._id || Date.now().toString() }, process.env.JWT_SECRET, {
+      expiresIn: '7d'
+    });
+
+    // Redirect to frontend with token
+    res.redirect(`/dashboard.html?token=${token}`);
+  } catch (err) {
+    console.error('Google OAuth error:', err);
+    res.redirect('/login.html');
+  }
+});

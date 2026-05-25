@@ -21,29 +21,8 @@ const app = express();
 // Middleware
 app.use(cors());
 
-app.use(express.text({
-  type: ['application/json', 'application/*+json'],
-  limit: '1mb'
-}));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-
-app.use((req, res, next) => {
-  const contentType = req.headers['content-type'] || '';
-  if (contentType.includes('application/json') && typeof req.body === 'string') {
-    try {
-      req.body = req.body ? JSON.parse(req.body) : {};
-    } catch (err) {
-      console.error(JSON.stringify({
-        event: 'invalid_json',
-        error: err.message,
-        contentType,
-        rawBody: req.body
-      }));
-      return res.status(400).json({ error: 'Invalid JSON body' });
-    }
-  }
-  next();
-});
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -59,6 +38,16 @@ app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/user', userRoutes);
 
 // Serve frontend pages
+// Explicitly handle common frontend page routes (so paths without .html work)
+app.get(['/login', '/login.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get(['/signup', '/signup.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+});
+
+// Fallback: serve index for all other unmatched routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

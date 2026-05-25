@@ -1,7 +1,7 @@
 // Authentication JavaScript
 
 // API Configuration - works for both local and production
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+const API_URL = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000/api'
     : '/api';
 
@@ -41,7 +41,12 @@ if (loginForm) {
                 body: JSON.stringify({ email, password })
             });
             
-            const data = await response.json();
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                data = { error: 'Unable to parse server response' };
+            }
             
             if (response.ok) {
                 // Store token and user data
@@ -124,8 +129,26 @@ function showToast(message, type = 'success') {
 }
 
 // Google Sign In (Mock)
+// Handle OAuth token returned in URL (callback)
+(function() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        if (token) {
+            localStorage.setItem('token', token);
+            // Remove token from URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+            window.location.href = 'dashboard.html';
+            return;
+        }
+    } catch (e) {
+        // ignore
+    }
+})();
+
+// Start real Google OAuth flow by redirecting to backend
 document.querySelectorAll('.btn-google').forEach(btn => {
     btn.addEventListener('click', () => {
-        showToast('Google Sign-In coming soon!', 'info');
+        window.location.href = `${API_URL}/auth/google`;
     });
 });
