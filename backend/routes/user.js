@@ -2,24 +2,14 @@ const express = require('express');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { put } = require('@vercel/blob');
 
 const router = express.Router();
 
-// Multer for avatar uploads
-const avatarDir = path.join(__dirname, '../../uploads/avatars');
-if (!fs.existsSync(avatarDir)) fs.mkdirSync(avatarDir, { recursive: true });
 
-const avatarStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, avatarDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `avatar-${req.userId}-${Date.now()}${ext}`);
-  }
-});
+
 const avatarUpload = multer({
-  storage: avatarStorage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
   fileFilter: (req, file, cb) => {
     const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
@@ -99,7 +89,15 @@ router.post('/avatar', auth, avatarUpload.single('avatar'), async (req, res) => 
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    const profilePhoto = `/uploads/avatars/${req.file.filename}`;
+    const blob = await put(
+      `avatar-${req.userId}-${Date.now()}-${req.file.originalname}`,
+      req.file.buffer,
+      {
+        access: 'public'
+      }
+    );
+
+    const profilePhoto = blob.url;
 
     const user = await User.findById(req.userId);
     if (user) {
