@@ -38,15 +38,24 @@ const userRoutes = require('./backend/routes/user');
 const app = express();
 
 // CORS — restrict to same origin in production
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [process.env.BASE_URL].filter(Boolean)
-  : ['http://localhost:5000', 'http://127.0.0.1:5000'];
+const allowedOrigins = [
+  'http://localhost:5000',
+  'http://127.0.0.1:5000',
+  'http://localhost:5173',
+  'https://prepwise-ai-gilt.vercel.app'
+];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (same-origin, curl, mobile apps)
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error('Not allowed by CORS'));
+  origin: function(origin, callback) {
+
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+
   },
   credentials: true
 }));
@@ -56,7 +65,7 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
