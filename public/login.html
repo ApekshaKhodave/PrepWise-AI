@@ -143,22 +143,10 @@
 
     <script src="js/auth.js"></script>
     <script>
-        // Open forgot modal
+        // Forgot modal fallback opener (auth.js also handles this)
         document.getElementById('forgotPasswordLink').addEventListener('click', e => {
             e.preventDefault();
             document.getElementById('forgotModal').classList.add('show');
-        });
-        // Password toggle
-        document.querySelector('.toggle-password').addEventListener('click', function() {
-            const input = document.getElementById('loginPassword');
-            const icon = this.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
         });
     </script>
 </body>

@@ -177,19 +177,7 @@
             else if (score <= 2) { fill.classList.add('medium'); label.textContent = 'Medium'; label.className = 'strength-label medium'; }
             else { fill.classList.add('strong'); label.textContent = 'Strong';  label.className = 'strength-label strong'; }
         });
-
-        // Password toggle
-        document.querySelector('.toggle-password').addEventListener('click', function() {
-            const input = document.getElementById('signupPassword');
-            const icon = this.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
-        });
+        // Note: password toggle is handled by auth.js
     </script>
 </body>
 </html>
