@@ -121,18 +121,28 @@ Return only the valid JSON object conforming to the structure above.`;
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     
-    // Parse responseText
-    let analysis;
-    try {
-      analysis = JSON.parse(responseText);
-    } catch (parseError) {
-      console.warn('Failed to parse Gemini response as JSON directly, attempting regex match:', parseError);
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('Invalid response format from Gemini');
-      }
-      analysis = JSON.parse(jsonMatch[0]);
-    }
+    // Clean Gemini response
+let cleanedResponse = responseText
+  .replace(/```json/g, '')
+  .replace(/```/g, '')
+  .trim();
+
+let analysis;
+
+try {
+  analysis = JSON.parse(cleanedResponse);
+} catch (parseError) {
+
+  console.error('Gemini JSON Parse Error:', cleanedResponse);
+
+  const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+
+  if (!jsonMatch) {
+    throw new Error('Invalid JSON response from Gemini');
+  }
+
+  analysis = JSON.parse(jsonMatch[0]);
+}
     
     return {
       atsScore: Math.min(100, Math.max(0, typeof analysis.atsScore === 'number' ? analysis.atsScore : 65)),
@@ -186,7 +196,20 @@ router.post(
 
       const pdfData = await pdfParse(pdfBuffer);
 
-      const extractedText = pdfData.text;
+      const extractedText = pdfData.text?.trim();
+
+
+      if (!extractedText || extractedText.length < 20) {
+  
+        return res.status(400).json({
+    
+          success: false,
+    
+          error: 'Could not extract text from PDF. Upload a text-based resume PDF.'
+  
+        });
+
+      }
 
       /* =========================
          SAVE TXT FILE
@@ -203,7 +226,15 @@ router.post(
 
       const txtFilePath = path.join(txtFolder, txtFileName);
 
-      fs.writeFileSync(txtFilePath, extractedText, 'utf8');
+      try {
+  
+        fs.writeFileSync(txtFilePath, extractedText, 'utf8');
+
+      } catch (txtError) {
+  
+        console.error('TXT Save Error:', txtError);
+
+      }
 
       /* =========================
          ANALYZE RESUME
@@ -243,7 +274,12 @@ router.post(
          RESPONSE
       ========================= */
 
-      res.status(200).json({
+      // Delete uploaded PDF after analysis
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (deleteError) {
+        console.error('File delete error:', deleteError);
+      }
         success: true,
 
         message: 'Resume analyzed successfully',
@@ -259,7 +295,7 @@ router.post(
 
     } catch (error) {
 
-      console.error(error);
+      console.error('Resume Analyze Error:', error);
 
       res.status(500).json({
         success: false,
