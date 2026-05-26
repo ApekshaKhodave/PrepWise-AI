@@ -99,11 +99,16 @@ function handleFileSelect(file) {
 // Upload Resume
 async function uploadResume() {
     const fileInput = document.getElementById('resumeFile');
+    const uploadBtn = document.getElementById('uploadBtn');
     
     if (!fileInput.files || fileInput.files.length === 0) {
         showToast('Please select a file first', 'error');
         return;
     }
+    
+    const originalBtnHTML = uploadBtn.innerHTML;
+    uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+    uploadBtn.disabled = true;
     
     const formData = new FormData();
     formData.append('resume', fileInput.files[0]);
@@ -119,39 +124,20 @@ async function uploadResume() {
             const data = await response.json();
             showAnalysis(data.report);
         } else {
-            // Mock analysis for demo
-            const mockReport = {
-                atsScore: Math.floor(Math.random() * 30) + 70,
-                analysis: {
-                    skillsFound: ['JavaScript', 'React', 'Node.js', 'MongoDB', 'Python', 'Git'],
-                    missingKeywords: ['Docker', 'Kubernetes', 'AWS', 'CI/CD'],
-                    strengths: [
-                        'Clear project descriptions',
-                        'Quantified achievements',
-                        'Relevant technical skills',
-                        'Good formatting'
-                    ],
-                    improvements: [
-                        'Add more action verbs',
-                        'Include certifications',
-                        'Add LinkedIn profile',
-                        'Optimize for ATS keywords'
-                    ],
-                    sections: {
-                        contact: true,
-                        summary: true,
-                        experience: true,
-                        education: true,
-                        skills: true,
-                        projects: true
-                    }
-                }
-            };
-            showAnalysis(mockReport);
+            const errData = await response.json().catch(() => ({}));
+            const errMsg = errData.error || 'Server error during analysis';
+            showToast(errMsg, 'error');
+            console.error('Analysis API error:', errMsg);
+            if (errMsg.includes('GEMINI_API_KEY')) {
+                alert(`Configuration Required: ${errMsg}\n\nPlease add GEMINI_API_KEY to your .env file in the project root and restart the server.`);
+            }
         }
     } catch (error) {
         console.error('Error uploading resume:', error);
-        showToast('Error analyzing resume', 'error');
+        showToast('Connection error during analysis', 'error');
+    } finally {
+        uploadBtn.innerHTML = originalBtnHTML;
+        uploadBtn.disabled = false;
     }
 }
 

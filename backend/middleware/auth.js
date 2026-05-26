@@ -9,7 +9,13 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error('JWT_SECRET is not configured');
+      return res.status(500).json({ error: 'JWT secret not configured' });
+    }
+
+    const decoded = jwt.verify(token, secret);
     
     // Try to find user with timeout
     const user = await User.findById(decoded.userId).maxTimeMS(10000).catch(() => null);

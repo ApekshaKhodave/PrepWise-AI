@@ -5,10 +5,16 @@ const auth = require('../middleware/auth');
 const fetch = require('node-fetch');
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Register
 router.post('/register', async (req, res) => {
   try {
+    if (!JWT_SECRET) {
+      console.error('JWT_SECRET is not configured');
+      return res.status(500).json({ error: 'JWT secret not configured' });
+    }
+
     const { name, email, password } = req.body;
 
     // Check if user exists
@@ -25,7 +31,7 @@ router.post('/register', async (req, res) => {
     });
 
     // Generate token
-    const token = jwt.sign({ userId: user._id || Date.now().toString() }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id || Date.now().toString() }, JWT_SECRET, {
       expiresIn: '7d'
     });
 
@@ -39,9 +45,14 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
+    if (!JWT_SECRET) {
+      console.error('JWT_SECRET is not configured');
+      return res.status(500).json({ error: 'JWT secret not configured' });
+    }
+
     // Fallback for demo mode
     const mockUserId = Date.now().toString();
-    const token = jwt.sign({ userId: mockUserId }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: mockUserId }, JWT_SECRET, {
       expiresIn: '7d'
     });
     
@@ -66,9 +77,14 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email }).maxTimeMS(10000).catch(() => null);
     
     if (!user) {
+      if (!JWT_SECRET) {
+        console.error('JWT_SECRET is not configured');
+        return res.status(500).json({ error: 'JWT secret not configured' });
+      }
+
       // Demo mode - create mock user for login
       const mockUserId = Date.now().toString();
-      const token = jwt.sign({ userId: mockUserId }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ userId: mockUserId }, JWT_SECRET, {
         expiresIn: '7d'
       });
 
@@ -97,7 +113,7 @@ router.post('/login', async (req, res) => {
     await user.save().catch(() => {});
 
     // Generate token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: '7d'
     });
 
@@ -114,9 +130,14 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
+    if (!JWT_SECRET) {
+      console.error('JWT_SECRET is not configured');
+      return res.status(500).json({ error: 'JWT secret not configured' });
+    }
+
     // Fallback for demo mode
     const mockUserId = Date.now().toString();
-    const token = jwt.sign({ userId: mockUserId }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: mockUserId }, JWT_SECRET, {
       expiresIn: '7d'
     });
 
@@ -207,7 +228,12 @@ router.get('/google/callback', async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ userId: user._id || Date.now().toString() }, process.env.JWT_SECRET, {
+    if (!JWT_SECRET) {
+      console.error('JWT_SECRET is not configured');
+      return res.redirect('/login.html');
+    }
+
+    const token = jwt.sign({ userId: user._id || Date.now().toString() }, JWT_SECRET, {
       expiresIn: '7d'
     });
 
