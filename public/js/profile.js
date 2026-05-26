@@ -54,6 +54,21 @@ function displayUserProfile(user) {
     document.getElementById('email').value = user.email;
     document.getElementById('college').value = user.college || '';
     document.getElementById('branch').value = user.branch || '';
+
+    // Update profile badges with real data
+    const badges = document.querySelector('.profile-badges');
+    if (badges) {
+        badges.innerHTML = `
+            <span class="badge badge-purple"><i class="fas fa-fire"></i> ${user.streak || 0} Day Streak</span>
+            <span class="badge badge-blue"><i class="fas fa-star"></i> ${(user.xp || 0).toLocaleString()} XP</span>
+        `;
+    }
+
+    // Update avatar
+    if (user.profilePhoto && user.profilePhoto !== 'default-avatar.png') {
+        const avatarEl = document.getElementById('profileAvatar');
+        if (avatarEl) avatarEl.src = user.profilePhoto;
+    }
     
     // Display skills
     if (user.skills && user.skills.length > 0) {
@@ -85,30 +100,34 @@ function displaySkills(skills) {
     });
 }
 
-// Display Achievements
-function displayAchievements(achievements) {
+// Display Achievements — uses real unlocked achievements from user data,
+// merged with the full list of possible achievements
+function displayAchievements(unlockedAchievements) {
     const achievementsGrid = document.getElementById('achievementsGrid');
     achievementsGrid.innerHTML = '';
     
+    const unlockedTitles = new Set((unlockedAchievements || []).map(a => a.title));
+
     const allAchievements = [
-        { icon: 'fa-fire', title: 'First Streak', description: 'Complete 7 day streak', unlocked: true },
-        { icon: 'fa-trophy', title: 'Top Performer', description: 'Reach top 10 on leaderboard', unlocked: false },
-        { icon: 'fa-code', title: 'Code Master', description: 'Solve 100 coding problems', unlocked: true },
-        { icon: 'fa-graduation-cap', title: 'Test Champion', description: 'Score 90%+ in 10 tests', unlocked: false },
-        { icon: 'fa-star', title: 'Rising Star', description: 'Earn 5000 XP', unlocked: true },
-        { icon: 'fa-medal', title: 'Interview Pro', description: 'Complete 10 mock interviews', unlocked: false }
+        { icon: 'fa-fire', title: 'First Streak', description: 'Complete a 7 day streak' },
+        { icon: 'fa-trophy', title: 'Top Performer', description: 'Reach top 10 on leaderboard' },
+        { icon: 'fa-code', title: 'Code Master', description: 'Solve 100 coding problems' },
+        { icon: 'fa-graduation-cap', title: 'Test Champion', description: 'Score 90%+ in 10 tests' },
+        { icon: 'fa-star', title: 'Rising Star', description: 'Earn 5000 XP' },
+        { icon: 'fa-medal', title: 'Interview Pro', description: 'Complete 10 mock interviews' }
     ];
     
     allAchievements.forEach(achievement => {
+        const unlocked = unlockedTitles.has(achievement.title);
         const card = document.createElement('div');
-        card.className = `achievement-card ${achievement.unlocked ? '' : 'locked'}`;
+        card.className = `achievement-card ${unlocked ? '' : 'locked'}`;
         card.innerHTML = `
             <div class="achievement-icon">
                 <i class="fas ${achievement.icon}"></i>
             </div>
             <h4>${achievement.title}</h4>
             <p>${achievement.description}</p>
-            ${achievement.unlocked ? '<span class="achievement-date">Unlocked</span>' : '<span class="achievement-date">Locked</span>'}
+            <span class="achievement-date">${unlocked ? 'Unlocked' : 'Locked'}</span>
         `;
         achievementsGrid.appendChild(card);
     });
@@ -144,8 +163,43 @@ function setupEventListeners() {
             this.classList.add('active');
             const theme = this.getAttribute('data-theme');
             applyTheme(theme);
+            // Sync preference to backend
+            fetch(`${API_URL}/user/preferences`, {
+                method: 'PUT',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ theme })
+            }).catch(() => {});
         });
     });
+
+    // Delete Account
+    const deleteBtn = document.querySelector('.btn-danger');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+            const confirmed = window.confirm(
+                'Are you sure you want to delete your account? This action cannot be undone.'
+            );
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch(`${API_URL}/user/account`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    showToast('Account deleted.', 'success');
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                } else {
+                    showToast('Failed to delete account. Please try again.', 'error');
+                }
+            } catch (err) {
+                showToast('Error deleting account.', 'error');
+            }
+        });
+    }
     
     // Theme toggle
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
@@ -192,18 +246,44 @@ async function updateProfile(e) {
     }
 }
 
-// Handle Avatar Upload
-function handleAvatarUpload(e) {
+// Handle Avatar Upload — sends to server so it persists
+async function handleAvatarUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
-    
+
+    // Preview immediately
     const reader = new FileReader();
     reader.onload = function(event) {
         document.getElementById('profileAvatar').src = event.target.result;
-        document.querySelector('.user-avatar').src = event.target.result;
-        showToast('Avatar updated!', 'success');
+        const avatarEl = document.querySelector('.user-avatar');
+        if (avatarEl) avatarEl.src = event.target.result;
     };
     reader.readAsDataURL(file);
+
+    // Upload to server
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+        const response = await fetch(`${API_URL}/user/avatar`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            body: formData
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            // Update stored user object
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            user.profilePhoto = data.profilePhoto;
+            localStorage.setItem('user', JSON.stringify(user));
+            showToast('Avatar updated!', 'success');
+        } else {
+            showToast('Avatar preview updated (not saved — server unavailable)', 'info');
+        }
+    } catch (err) {
+        showToast('Avatar preview updated (not saved — server unavailable)', 'info');
+    }
 }
 
 // Apply Theme

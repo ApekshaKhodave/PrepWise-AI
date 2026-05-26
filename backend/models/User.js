@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  codingProblemsolved: {
+  codingProblemsSolved: {
     type: Number,
     default: 0
   },

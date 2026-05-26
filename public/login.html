@@ -3,82 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to PrepWise AI - Your smart AI-powered placement preparation portal.">
     <title>Login - PrepWise AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="auth-page">
     <div class="auth-container">
+        <!-- Left Panel -->
         <div class="auth-left">
             <div class="auth-branding">
-                <div class="logo">
+                <a href="index.html" class="logo">
                     <i class="fas fa-brain"></i>
                     <span>PrepWise AI</span>
-                </div>
-                <h2>Welcome Back!</h2>
-                <p>Continue your placement preparation journey</p>
-                <div class="auth-illustration">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
+                </a>
+                <h2>Welcome Back! 👋</h2>
+                <p>Continue your placement preparation journey. You're one step closer to your dream job.</p>
+                <ul class="auth-features">
+                    <li>
+                        <i class="fas fa-check"></i>
+                        AI-powered aptitude & coding practice
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        Real-time mock interviews with feedback
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        Company-specific preparation roadmaps
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        Smart resume analyzer & ATS scorer
+                    </li>
+                </ul>
+                <i class="fas fa-graduation-cap auth-illustration"></i>
             </div>
         </div>
+
+        <!-- Right Panel -->
         <div class="auth-right">
             <div class="auth-card">
-                <h2>Login to Your Account</h2>
+                <h2>Sign In</h2>
                 <p class="auth-subtitle">Enter your credentials to access your dashboard</p>
-                
-                <form id="loginForm" class="auth-form" method="POST" action="/api/auth/login">
+
+                <form id="loginForm" class="auth-form" novalidate>
                     <div class="form-group">
-                        <label for="email">Email Address</label>
+                        <label for="loginEmail">Email Address</label>
                         <div class="input-group">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                            <input
+                                type="email"
+                                id="loginEmail"
+                                name="email"
+                                placeholder="you@example.com"
+                                required
+                                autocomplete="email"
+                            >
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="password">Password</label>
+                        <label for="loginPassword">Password</label>
                         <div class="input-group">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                            <button type="button" class="toggle-password">
+                            <input
+                                type="password"
+                                id="loginPassword"
+                                name="password"
+                                placeholder="Enter your password"
+                                required
+                                autocomplete="current-password"
+                            >
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="form-options">
                         <label class="checkbox-label">
-                            <input type="checkbox" name="remember">
+                            <input type="checkbox" id="rememberMe" name="remember">
                             <span>Remember me</span>
                         </label>
-                        <a href="#" class="forgot-link">Forgot Password?</a>
+                        <a href="#" class="forgot-link" id="forgotPasswordLink">Forgot Password?</a>
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fas fa-sign-in-alt"></i> Login
+
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
                     </button>
                 </form>
-                
-                <div class="divider">
-                    <span>OR</span>
-                </div>
-                
-                <button class="btn btn-google">
-                    <i class="fab fa-google"></i> Continue with Google
+
+                <div class="divider"><span>or continue with</span></div>
+
+                <button class="btn btn-google" id="googleLoginBtn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" height="18" alt="Google" style="border-radius:0">
+                    Continue with Google
                 </button>
-                
+
                 <p class="auth-footer">
-                    Don't have an account? <a href="signup.html">Sign Up</a>
+                    Don't have an account? <a href="signup.html">Create one free</a>
                 </p>
             </div>
         </div>
     </div>
-    
+
     <div id="toast" class="toast"></div>
-    
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="modal">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-key" style="color:var(--primary);margin-right:8px;"></i>Reset Password</h3>
+                <button class="modal-close" onclick="document.getElementById('forgotModal').classList.remove('show')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:var(--sp-5);color:var(--text-secondary);">Enter your registered email address and we'll send you a password reset link.</p>
+                <div class="form-group">
+                    <label for="forgotEmail">Email Address</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="forgotEmail" placeholder="you@example.com">
+                    </div>
+                </div>
+                <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-5);">
+                    <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('forgotModal').classList.remove('show')">Cancel</button>
+                    <button class="btn btn-primary" style="flex:1;" id="sendResetBtn">
+                        <i class="fas fa-paper-plane"></i> Send Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/auth.js"></script>
+    <script>
+        // Open forgot modal
+        document.getElementById('forgotPasswordLink').addEventListener('click', e => {
+            e.preventDefault();
+            document.getElementById('forgotModal').classList.add('show');
+        });
+        // Password toggle
+        document.querySelector('.toggle-password').addEventListener('click', function() {
+            const input = document.getElementById('loginPassword');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    </script>
 </body>
 </html>

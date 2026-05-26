@@ -34,6 +34,7 @@ function getAuthHeaders() {
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     setupEventListeners();
+    viewHistory(); // load history on page load
 });
 
 // Setup Event Listeners
@@ -317,21 +318,94 @@ function animateValue(id, start, end, duration, suffix = '') {
     }, 16);
 }
 
-// Toggle Microphone
+// Toggle Microphone — uses Web Speech API if available
 function toggleMicrophone() {
     const micBtn = document.getElementById('micBtn');
-    micBtn.classList.toggle('recording');
-    
-    if (micBtn.classList.contains('recording')) {
-        showToast('Recording...', 'info');
-    } else {
-        showToast('Recording stopped', 'info');
+    const answerInput = document.getElementById('answerInput');
+
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        showToast('Voice input is not supported in this browser. Please type your answer.', 'error');
+        return;
     }
+
+    if (micBtn.classList.contains('recording')) {
+        // Stop recording
+        if (window._recognition) {
+            window._recognition.stop();
+        }
+        micBtn.classList.remove('recording');
+        showToast('Recording stopped', 'info');
+        return;
+    }
+
+    // Start recording
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+        micBtn.classList.add('recording');
+        showToast('Recording... speak your answer', 'info');
+    };
+
+    recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = 0; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+        }
+        answerInput.value = transcript;
+    };
+
+    recognition.onerror = (event) => {
+        micBtn.classList.remove('recording');
+        showToast('Voice recognition error: ' + event.error, 'error');
+    };
+
+    recognition.onend = () => {
+        micBtn.classList.remove('recording');
+    };
+
+    window._recognition = recognition;
+    recognition.start();
 }
 
-// View History
-function viewHistory() {
-    window.location.href = '#history';
+// View History — loads and displays past interviews
+async function viewHistory() {
+    try {
+        const response = await fetch(`${API_URL}/interview/history`, {
+            headers: getAuthHeaders()
+        });
+
+        const historyGrid = document.getElementById('historyGrid');
+        if (!historyGrid) return;
+
+        if (response.ok) {
+            const data = await response.json();
+            const interviews = data.interviews || [];
+
+            if (interviews.length === 0) {
+                historyGrid.innerHTML = '<p style="color:var(--text-secondary)">No past interviews yet.</p>';
+            } else {
+                historyGrid.innerHTML = interviews.map(iv => `
+                    <div class="history-item">
+                        <div class="history-type">${iv.interviewType || 'Technical'}</div>
+                        <div class="history-score">${iv.overallScore || 0}%</div>
+                        <div class="history-date">${new Date(iv.createdAt).toLocaleDateString()}</div>
+                    </div>
+                `).join('');
+            }
+        } else {
+            historyGrid.innerHTML = '<p style="color:var(--text-secondary)">Could not load history.</p>';
+        }
+    } catch (err) {
+        console.error('Error loading interview history:', err);
+    }
+
+    // Scroll to history section
+    const historySection = document.querySelector('.history-section');
+    if (historySection) historySection.scrollIntoView({ behavior: 'smooth' });
 }
 
 // Retake Interview

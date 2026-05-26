@@ -1,127 +1,137 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const fetch = require('node-fetch');
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET;
 
-// Register
+// Read JWT_SECRET lazily so it always picks up the value loaded from .env
+const getSecret = () => process.env.JWT_SECRET;
+
+// ─── Register ────────────────────────────────────────────────────────────────
 router.post('/register', async (req, res) => {
-  try {
-    if (!JWT_SECRET) {
-      console.error('JWT_SECRET is not configured');
-      return res.status(500).json({ error: 'JWT secret not configured' });
+  const JWT_SECRET = getSecret();
+  if (!JWT_SECRET) {
+    return res.status(500).json({ error: 'JWT secret not configured' });
+  }
+
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Name, email and password are required' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  }
+
+  // Check if DB is reachable
+  const dbAvailable = mongoose.connection.readyState === 1;
+
+  if (!dbAvailable) {
+    // Demo mode: simulate registration without DB
+    try {
+      const mockId = Date.now().toString();
+      const token = jwt.sign({ userId: mockId }, JWT_SECRET, { expiresIn: '7d' });
+      return res.status(201).json({
+        message: 'Account created (Demo Mode — data not persisted)',
+        token,
+        user: { id: mockId, name: name.trim(), email: email.toLowerCase().trim() }
+      });
+    } catch (e) {
+      return res.status(500).json({ error: 'Registration failed' });
     }
+  }
 
-    const { name, email, password } = req.body;
-
-    // Check if user exists
-    const existingUser = await User.findOne({ email }).maxTimeMS(10000).catch(() => null);
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase().trim() }).maxTimeMS(10000);
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    // Create user
-    const user = new User({ name, email, password });
-    await user.save().catch(() => {
-      // If save fails (no DB), create mock user
-      user._id = Date.now().toString();
-    });
+    // Create and save user
+    const user = new User({ name: name.trim(), email: email.toLowerCase().trim(), password });
+    await user.save();
 
-    // Generate token
-    const token = jwt.sign({ userId: user._id || Date.now().toString() }, JWT_SECRET, {
-      expiresIn: '7d'
-    });
-
-    res.status(201).json({
+    const token = jwt.sign({ userId: user._id.toString() }, JWT_SECRET, { expiresIn: '7d' });
+    return res.status(201).json({
       message: 'User registered successfully',
       token,
       user: {
-        id: user._id || Date.now().toString(),
+        id: user._id.toString(),
         name: user.name,
         email: user.email
       }
     });
   } catch (error) {
-    if (!JWT_SECRET) {
-      console.error('JWT_SECRET is not configured');
-      return res.status(500).json({ error: 'JWT secret not configured' });
-    }
-
-    // Fallback for demo mode
-    const mockUserId = Date.now().toString();
-    const token = jwt.sign({ userId: mockUserId }, JWT_SECRET, {
-      expiresIn: '7d'
-    });
-    
-    res.status(201).json({
-      message: 'User registered successfully (Demo Mode)',
-      token,
-      user: {
-        id: mockUserId,
-        name: req.body.name,
-        email: req.body.email
-      }
-    });
+    console.error('Register error:', error.message);
+    return res.status(500).json({ error: 'Registration failed. Please try again.' });
   }
 });
 
-// Login
+// ─── Login ───────────────────────────────────────────────────────────────────
 router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const JWT_SECRET = getSecret();
+  if (!JWT_SECRET) {
+    return res.status(500).json({ error: 'JWT secret not configured' });
+  }
 
-    // Find user with timeout
-    const user = await User.findOne({ email }).maxTimeMS(10000).catch(() => null);
-    
-    if (!user) {
-      if (!JWT_SECRET) {
-        console.error('JWT_SECRET is not configured');
-        return res.status(500).json({ error: 'JWT secret not configured' });
-      }
+  const { email, password } = req.body;
 
-      // Demo mode - create mock user for login
-      const mockUserId = Date.now().toString();
-      const token = jwt.sign({ userId: mockUserId }, JWT_SECRET, {
-        expiresIn: '7d'
-      });
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
 
+  // Check if DB is reachable
+  const dbAvailable = mongoose.connection.readyState === 1;
+
+  if (!dbAvailable) {
+    // Demo mode: simulate login without DB
+    try {
+      const mockId = Date.now().toString();
+      const token = jwt.sign({ userId: mockId }, JWT_SECRET, { expiresIn: '7d' });
       return res.json({
         message: 'Login successful (Demo Mode)',
         token,
         user: {
-          id: mockUserId,
+          id: mockId,
           name: email.split('@')[0],
-          email: email,
+          email,
           profilePhoto: 'default-avatar.png',
-          xp: 5420,
-          streak: 45
+          xp: 0,
+          streak: 0
         }
       });
+    } catch (e) {
+      return res.status(500).json({ error: 'Login failed' });
+    }
+  }
+
+  try {
+    // Find user in DB
+    const user = await User.findOne({ email: email.toLowerCase().trim() }).maxTimeMS(10000);
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Check password
+    // Verify password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Update last active
     user.lastActive = Date.now();
     await user.save().catch(() => {});
 
-    // Generate token
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: '7d'
-    });
-
-    res.json({
+    const token = jwt.sign({ userId: user._id.toString() }, JWT_SECRET, { expiresIn: '7d' });
+    return res.json({
       message: 'Login successful',
       token,
       user: {
-        id: user._id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
         profilePhoto: user.profilePhoto,
@@ -130,33 +140,12 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
-    if (!JWT_SECRET) {
-      console.error('JWT_SECRET is not configured');
-      return res.status(500).json({ error: 'JWT secret not configured' });
-    }
-
-    // Fallback for demo mode
-    const mockUserId = Date.now().toString();
-    const token = jwt.sign({ userId: mockUserId }, JWT_SECRET, {
-      expiresIn: '7d'
-    });
-
-    res.json({
-      message: 'Login successful (Demo Mode)',
-      token,
-      user: {
-        id: mockUserId,
-        name: req.body.email.split('@')[0],
-        email: req.body.email,
-        profilePhoto: 'default-avatar.png',
-        xp: 5420,
-        streak: 45
-      }
-    });
+    console.error('Login error:', error.message);
+    return res.status(500).json({ error: 'Login failed. Please try again.' });
   }
 });
 
-// Get current user
+// ─── Get current user ────────────────────────────────────────────────────────
 router.get('/me', auth, async (req, res) => {
   try {
     res.json({ user: req.user });
@@ -165,16 +154,42 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-module.exports = router;
+// ─── Forgot password ─────────────────────────────────────────────────────────
+router.post('/forgot-password', async (req, res) => {
+  const JWT_SECRET = getSecret();
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
 
-// Google OAuth2 routes
+    const user = await User.findOne({ email: email.toLowerCase().trim() }).catch(() => null);
+
+    // Always return 200 to avoid email enumeration
+    if (!user || !JWT_SECRET) {
+      return res.json({ message: 'If that email is registered, a reset link has been sent.' });
+    }
+
+    const resetToken = jwt.sign({ userId: user._id.toString(), purpose: 'reset' }, JWT_SECRET, { expiresIn: '1h' });
+    const resetUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/reset-password.html?token=${resetToken}`;
+
+    // In production integrate nodemailer / SendGrid here.
+    // For now log the link so it can be tested locally.
+    console.log(`[Password Reset] Link for ${email}: ${resetUrl}`);
+
+    res.json({ message: 'If that email is registered, a reset link has been sent.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── Google OAuth ─────────────────────────────────────────────────────────────
 router.get('/google', (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = process.env.GOOGLE_CALLBACK_URL || `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/google/callback`;
-
   if (!clientId) {
-    return res.status(501).json({ error: 'Google OAuth not configured' });
+    return res.status(501).json({ error: 'Google OAuth not configured. Add GOOGLE_CLIENT_ID to .env' });
   }
+
+  const redirectUri = process.env.GOOGLE_CALLBACK_URL ||
+    `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/google/callback`;
 
   const params = new URLSearchParams({
     client_id: clientId,
@@ -189,10 +204,14 @@ router.get('/google', (req, res) => {
 });
 
 router.get('/google/callback', async (req, res) => {
+  const JWT_SECRET = getSecret();
   const code = req.query.code;
   if (!code) return res.redirect('/login.html');
 
   try {
+    const redirectUri = process.env.GOOGLE_CALLBACK_URL ||
+      `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/google/callback`;
+
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -200,47 +219,38 @@ router.get('/google/callback', async (req, res) => {
         code,
         client_id: process.env.GOOGLE_CLIENT_ID,
         client_secret: process.env.GOOGLE_CLIENT_SECRET,
-        redirect_uri: process.env.GOOGLE_CALLBACK_URL || `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/google/callback`,
+        redirect_uri: redirectUri,
         grant_type: 'authorization_code'
       })
     });
 
     const tokenJson = await tokenRes.json();
-    const accessToken = tokenJson.access_token;
+    if (!tokenJson.access_token) return res.redirect('/login.html');
 
-    if (!accessToken) return res.redirect('/login.html');
-
-    const profileRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo?access_token=' + accessToken);
+    const profileRes = await fetch(
+      'https://www.googleapis.com/oauth2/v2/userinfo?access_token=' + tokenJson.access_token
+    );
     const profile = await profileRes.json();
 
     let user = await User.findOne({ email: profile.email }).catch(() => null);
-
     if (!user) {
       user = new User({
-        name: profile.name || (profile.email ? profile.email.split('@')[0] : 'Google User'),
+        name: profile.name || profile.email.split('@')[0],
         email: profile.email,
-        password: Math.random().toString(36).slice(2),
+        password: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
         profilePhoto: profile.picture || 'default-avatar.png'
       });
-
-      await user.save().catch(() => {
-        user._id = Date.now().toString();
-      });
+      await user.save().catch(() => { user._id = Date.now().toString(); });
     }
 
-    if (!JWT_SECRET) {
-      console.error('JWT_SECRET is not configured');
-      return res.redirect('/login.html');
-    }
+    if (!JWT_SECRET) return res.redirect('/login.html');
 
-    const token = jwt.sign({ userId: user._id || Date.now().toString() }, JWT_SECRET, {
-      expiresIn: '7d'
-    });
-
-    // Redirect to frontend with token
+    const token = jwt.sign({ userId: user._id.toString() }, JWT_SECRET, { expiresIn: '7d' });
     res.redirect(`/dashboard.html?token=${token}`);
   } catch (err) {
     console.error('Google OAuth error:', err);
     res.redirect('/login.html');
   }
 });
+
+module.exports = router;

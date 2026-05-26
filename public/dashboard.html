@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PrepWise AI Dashboard - Track your progress, stats, and preparation activity.">
     <title>Dashboard - PrepWise AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
     <!-- Sidebar -->
@@ -64,24 +67,24 @@
         <!-- Top Bar -->
         <header class="topbar">
             <div class="topbar-left">
-                <button class="menu-toggle">
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="search-bar">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search...">
+                    <input type="text" id="dashboardSearch" placeholder="Search modules..." autocomplete="off">
                 </div>
             </div>
             <div class="topbar-right">
-                <button class="theme-toggle" id="themeToggle">
+                <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle theme">
                     <i class="fas fa-moon"></i>
                 </button>
-                <button class="notification-btn">
+                <button class="icon-btn notification-btn" aria-label="Notifications">
                     <i class="fas fa-bell"></i>
                     <span class="badge">3</span>
                 </button>
-                <div class="user-menu">
-                    <img src="https://i.pravatar.cc/100?img=8" alt="User" class="user-avatar">
+                <div class="user-menu" id="userMenuBtn">
+                    <img src="https://ui-avatars.com/api/?name=User&background=7C3AED&color=fff&bold=true" alt="User" class="user-avatar" id="topbarAvatar">
                     <span class="user-name" id="userName">Loading...</span>
                 </div>
             </div>
@@ -186,65 +189,29 @@
                         <h3>Recent Activity</h3>
                         <a href="#" class="view-all">View All</a>
                     </div>
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon blue">
-                                <i class="fas fa-calculator"></i>
-                            </div>
-                            <div class="activity-info">
-                                <h4>Completed Quantitative Test</h4>
-                                <p>Score: 85% • 2 hours ago</p>
-                            </div>
-                            <span class="activity-xp">+85 XP</span>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon green">
-                                <i class="fas fa-code"></i>
-                            </div>
-                            <div class="activity-info">
-                                <h4>Solved "Two Sum" Problem</h4>
-                                <p>Difficulty: Easy • 5 hours ago</p>
-                            </div>
-                            <span class="activity-xp">+50 XP</span>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon purple">
-                                <i class="fas fa-microphone"></i>
-                            </div>
-                            <div class="activity-info">
-                                <h4>Completed Mock Interview</h4>
-                                <p>Score: 78% • Yesterday</p>
-                            </div>
-                            <span class="activity-xp">+78 XP</span>
-                        </div>
+                    <div class="activity-list" id="activityList">
+                        <!-- Recent activity loaded dynamically -->
+                        <p style="color:var(--text-secondary,#888);padding:16px 0;">Loading activity...</p>
                     </div>
                 </div>
                 <div class="upcoming-card">
                     <div class="card-header">
                         <h3>Upcoming Tests</h3>
                     </div>
-                    <div class="upcoming-list">
+                    <div class="upcoming-list" id="upcomingList">
                         <div class="upcoming-item">
-                            <div class="upcoming-date">
-                                <span class="day">15</span>
-                                <span class="month">JAN</span>
+                            <div class="upcoming-info" style="flex:1">
+                                <h4>Aptitude Test</h4>
+                                <p><i class="fas fa-clock"></i> 25 minutes</p>
                             </div>
-                            <div class="upcoming-info">
-                                <h4>Logical Reasoning Test</h4>
-                                <p><i class="fas fa-clock"></i> 60 minutes</p>
-                            </div>
-                            <button class="btn btn-sm btn-primary">Start</button>
+                            <a href="aptitude.html" class="btn btn-sm btn-primary">Start</a>
                         </div>
                         <div class="upcoming-item">
-                            <div class="upcoming-date">
-                                <span class="day">16</span>
-                                <span class="month">JAN</span>
+                            <div class="upcoming-info" style="flex:1">
+                                <h4>Mock Interview</h4>
+                                <p><i class="fas fa-clock"></i> 30 minutes</p>
                             </div>
-                            <div class="upcoming-info">
-                                <h4>Coding Contest</h4>
-                                <p><i class="fas fa-clock"></i> 90 minutes</p>
-                            </div>
-                            <button class="btn btn-sm btn-outline">Remind Me</button>
+                            <a href="interview.html" class="btn btn-sm btn-outline">Start</a>
                         </div>
                     </div>
                 </div>

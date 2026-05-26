@@ -53,18 +53,24 @@ router.post('/submit', auth, async (req, res) => {
   try {
     const { problemId, code, language } = req.body;
     
-    // Simulate code execution (in production, use a code execution service)
-    const passed = Math.random() > 0.3; // 70% pass rate for demo
+    // NOTE: Real code execution requires an external sandboxed service (e.g. Judge0 API).
+    // Until integrated, submissions are evaluated with a simulated 70% pass rate.
+    // To integrate Judge0: https://judge0.com/
+    const passed = Math.random() > 0.3;
     
     if (passed) {
       const user = await User.findById(req.userId);
-      user.codingProblemsSolved += 1;
-      user.xp += 50;
-      await user.save();
+      if (user) {
+        user.codingProblemsSolved = (user.codingProblemsSolved || 0) + 1;
+        user.xp += 50;
+        await user.save();
+      }
 
-      const problem = await CodingProblem.findById(problemId);
-      problem.solvedBy += 1;
-      await problem.save();
+      const problem = await CodingProblem.findById(problemId).catch(() => null);
+      if (problem) {
+        problem.solvedBy = (problem.solvedBy || 0) + 1;
+        await problem.save();
+      }
     }
 
     res.json({

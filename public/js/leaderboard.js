@@ -31,9 +31,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Load Leaderboard
-async function loadLeaderboard() {
+async function loadLeaderboard(period = 'all') {
     try {
-        const response = await fetch(`${API_URL}/leaderboard`, {
+        const response = await fetch(`${API_URL}/leaderboard?period=${period}`, {
             headers: getAuthHeaders()
         });
         
@@ -61,7 +61,7 @@ function getMockLeaderboard() {
         rank: index + 1,
         name,
         email: name.toLowerCase().replace(' ', '.') + '@example.com',
-        profilePhoto: `https://i.pravatar.cc/100?img=${index + 1}`,
+        profilePhoto: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6C63FF&color=fff`,
         xp: 10000 - (index * 500),
         streak: Math.floor(Math.random() * 50) + 10,
         testsCompleted: Math.floor(Math.random() * 100) + 20,
@@ -71,17 +71,40 @@ function getMockLeaderboard() {
 
 // Display Leaderboard
 function displayLeaderboard(leaderboard) {
+    // Update top 3 podium with real data
+    const top3 = leaderboard.slice(0, 3);
+    const podiumOrder = [1, 0, 2]; // 2nd, 1st, 3rd display order
+    document.querySelectorAll('.podium-card').forEach((card, i) => {
+        const user = top3[podiumOrder[i]];
+        if (!user) return;
+        const img = card.querySelector('img');
+        const name = card.querySelector('h4');
+        const xp = card.querySelector('.xp-count');
+        const streakEl = card.querySelector('.stats-mini span:first-child');
+        const testsEl = card.querySelector('.stats-mini span:last-child');
+        if (img) img.src = user.profilePhoto && user.profilePhoto !== 'default-avatar.png'
+            ? user.profilePhoto
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6C63FF&color=fff`;
+        if (name) name.textContent = user.name;
+        if (xp) xp.innerHTML = `<i class="fas fa-star"></i> ${user.xp.toLocaleString()} XP`;
+        if (streakEl) streakEl.innerHTML = `<i class="fas fa-fire"></i> ${user.streak}`;
+        if (testsEl) testsEl.innerHTML = `<i class="fas fa-trophy"></i> ${user.testsCompleted}`;
+    });
+
     const tbody = document.getElementById('leaderboardBody');
     tbody.innerHTML = '';
     
     // Skip top 3 as they're displayed separately
     leaderboard.slice(3).forEach(user => {
+        const avatarSrc = user.profilePhoto && user.profilePhoto !== 'default-avatar.png'
+            ? user.profilePhoto
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6C63FF&color=fff`;
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="rank-cell ${user.rank <= 3 ? 'top-3' : ''}">#${user.rank}</td>
+            <td class="rank-cell">#${user.rank}</td>
             <td>
                 <div class="user-cell">
-                    <img src="${user.profilePhoto}" alt="${user.name}">
+                    <img src="${avatarSrc}" alt="${user.name}">
                     <div class="user-info">
                         <h5>${user.name}</h5>
                         <p>${user.email}</p>
@@ -98,20 +121,29 @@ function displayLeaderboard(leaderboard) {
         tbody.appendChild(tr);
     });
     
-    // Update your rank
-    const currentUser = JSON.parse(localStorage.getItem('user'));
-    const yourRank = leaderboard.findIndex(u => u.email === currentUser.email) + 1;
-    
-    if (yourRank > 0) {
-        document.getElementById('yourRank').textContent = yourRank;
-        document.getElementById('yourXP').textContent = leaderboard[yourRank - 1].xp.toLocaleString();
-        
-        if (yourRank < leaderboard.length) {
-            const xpToNext = leaderboard[yourRank - 2].xp - leaderboard[yourRank - 1].xp;
-            document.getElementById('xpToNext').textContent = xpToNext.toLocaleString();
-        } else {
-            document.getElementById('xpToNext').textContent = '0';
+    // Update your rank — safe even if user is not in top 50
+    try {
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (currentUser && currentUser.email) {
+            const yourIndex = leaderboard.findIndex(u => u.email === currentUser.email);
+            if (yourIndex >= 0) {
+                const yourRank = yourIndex + 1;
+                document.getElementById('yourRank').textContent = yourRank;
+                document.getElementById('yourXP').textContent = leaderboard[yourIndex].xp.toLocaleString();
+                if (yourIndex > 0) {
+                    const xpToNext = leaderboard[yourIndex - 1].xp - leaderboard[yourIndex].xp;
+                    document.getElementById('xpToNext').textContent = xpToNext.toLocaleString();
+                } else {
+                    document.getElementById('xpToNext').textContent = '0';
+                }
+            } else {
+                document.getElementById('yourRank').textContent = '50+';
+                document.getElementById('yourXP').textContent = currentUser.xp ? currentUser.xp.toLocaleString() : '0';
+                document.getElementById('xpToNext').textContent = '--';
+            }
         }
+    } catch (e) {
+        // localStorage parse error — leave defaults
     }
 }
 

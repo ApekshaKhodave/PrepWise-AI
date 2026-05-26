@@ -5,6 +5,7 @@ const API_URL = window.location.hostname === 'localhost' || window.location.host
     ? 'http://localhost:5000/api'
     : '/api';
 let problems = [];
+let allProblems = []; // keep original list for search filtering
 let currentProblem = null;
 
 // Check Auth
@@ -46,12 +47,15 @@ async function loadProblems(difficulty = 'all') {
         if (response.ok) {
             const data = await response.json();
             problems = data.problems;
+            allProblems = [...problems];
         } else {
             problems = generateMockProblems();
+            allProblems = [...problems];
         }
     } catch (error) {
         console.error('Error loading problems:', error);
         problems = generateMockProblems();
+        allProblems = [...problems];
     }
     
     displayProblems();
@@ -141,26 +145,39 @@ function openProblem(problem) {
     document.getElementById('problemDifficulty').className = `difficulty-badge ${problem.difficulty}`;
     document.getElementById('problemDescription').innerHTML = `<p>${problem.description}</p>`;
     
-    // Mock examples
-    document.getElementById('problemExamples').innerHTML = `
-        <div class="example-box">
-            <strong>Example 1:</strong><br>
-            Input: nums = [2,7,11,15], target = 9<br>
-            Output: [0,1]<br>
-            Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
-        </div>
-    `;
+    // Use problem-specific examples if available, otherwise show a generic placeholder
+    const examplesHtml = problem.examples && problem.examples.length
+        ? problem.examples.map((ex, i) => `
+            <div class="example-box">
+                <strong>Example ${i + 1}:</strong><br>
+                ${ex.input ? `Input: ${ex.input}<br>` : ''}
+                ${ex.output ? `Output: ${ex.output}<br>` : ''}
+                ${ex.explanation ? `Explanation: ${ex.explanation}` : ''}
+            </div>`).join('')
+        : `<div class="example-box"><em>Examples will appear here once the problem is loaded from the database.</em></div>`;
+    document.getElementById('problemExamples').innerHTML = examplesHtml;
+
+    // Use problem-specific constraints if available
+    const constraintsHtml = problem.constraints && problem.constraints.length
+        ? `<ul>${problem.constraints.map(c => `<li>${c}</li>`).join('')}</ul>`
+        : `<ul><li>Constraints will appear here once the problem is loaded from the database.</li></ul>`;
+    document.getElementById('problemConstraints').innerHTML = constraintsHtml;
     
-    document.getElementById('problemConstraints').innerHTML = `
-        <ul>
-            <li>2 <= nums.length <= 10^4</li>
-            <li>-10^9 <= nums[i] <= 10^9</li>
-            <li>-10^9 <= target <= 10^9</li>
-        </ul>
-    `;
-    
-    // Reset code editor
-    document.getElementById('codeEditor').value = `// Write your code here\nfunction solution() {\n    \n}`;
+    // Reset code editor with language-appropriate starter
+    const lang = document.getElementById('languageSelect').value || 'javascript';
+    document.getElementById('codeEditor').value = getStarterCode(lang, problem.title);
+}
+
+// Get language-appropriate starter code
+function getStarterCode(lang, title) {
+    const fnName = title ? title.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_') : 'solution';
+    const starters = {
+        javascript: `// ${title}\nfunction ${fnName}() {\n    // Write your solution here\n}`,
+        python: `# ${title}\ndef ${fnName}():\n    # Write your solution here\n    pass`,
+        java: `// ${title}\nclass Solution {\n    public void ${fnName}() {\n        // Write your solution here\n    }\n}`,
+        cpp: `// ${title}\n#include <bits/stdc++.h>\nusing namespace std;\n\nvoid ${fnName}() {\n    // Write your solution here\n}`
+    };
+    return starters[lang] || starters.javascript;
 }
 
 // Setup Event Listeners
@@ -175,17 +192,27 @@ function setupEventListeners() {
         });
     });
     
-    // Search
+    // Search — filter from allProblems so clearing restores the full list
     document.getElementById('searchInput').addEventListener('input', function(e) {
-        const search = e.target.value.toLowerCase();
-        const filtered = problems.filter(p => 
-            p.title.toLowerCase().includes(search) ||
-            p.description.toLowerCase().includes(search)
-        );
-        problems = filtered;
+        const search = e.target.value.toLowerCase().trim();
+        if (!search) {
+            problems = [...allProblems];
+        } else {
+            problems = allProblems.filter(p => 
+                p.title.toLowerCase().includes(search) ||
+                p.description.toLowerCase().includes(search)
+            );
+        }
         displayProblems();
     });
     
+    // Language selector — regenerate starter code
+    document.getElementById('languageSelect').addEventListener('change', function() {
+        if (currentProblem) {
+            document.getElementById('codeEditor').value = getStarterCode(this.value, currentProblem.title);
+        }
+    });
+
     // Modal close
     document.querySelector('.modal-close').addEventListener('click', () => {
         document.getElementById('problemModal').classList.remove('show');
@@ -206,25 +233,24 @@ function setupEventListeners() {
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 }
 
-// Run Code
+// Run Code — note: actual code execution requires a sandboxed service.
+// This shows a clear message rather than fake pass/fail results.
 function runCode() {
-    const code = document.getElementById('codeEditor').value;
+    const code = document.getElementById('codeEditor').value.trim();
     const resultsDiv = document.getElementById('testResults');
     const resultsContent = document.getElementById('testResultsContent');
     
+    if (!code) {
+        showToast('Please write some code first', 'error');
+        return;
+    }
+
     resultsDiv.style.display = 'block';
     resultsContent.innerHTML = `
-        <div class="test-case passed">
-            <span>Test Case 1</span>
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="test-case passed">
-            <span>Test Case 2</span>
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="test-case failed">
-            <span>Test Case 3</span>
-            <i class="fas fa-times-circle"></i>
+        <div class="test-case info" style="padding:12px;color:#6C63FF;background:rgba(108,99,255,0.08);border-radius:8px;">
+            <i class="fas fa-info-circle"></i>
+            <strong> Code saved.</strong> Click <em>Submit</em> to evaluate your solution against all test cases.
+            <br><small style="opacity:0.7">Live code execution requires a sandboxed runtime service (e.g. Judge0).</small>
         </div>
     `;
 }
@@ -261,7 +287,9 @@ async function submitCode() {
 
 // Reset Code
 function resetCode() {
-    document.getElementById('codeEditor').value = `// Write your code here\nfunction solution() {\n    \n}`;
+    const lang = document.getElementById('languageSelect').value || 'javascript';
+    const title = currentProblem ? currentProblem.title : '';
+    document.getElementById('codeEditor').value = getStarterCode(lang, title);
 }
 
 // Toggle Theme

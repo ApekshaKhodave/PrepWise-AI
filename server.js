@@ -7,6 +7,25 @@ const path = require('path');
 // Load environment variables
 dotenv.config();
 
+// Validate required environment variables before starting
+const REQUIRED_ENV = ['JWT_SECRET', 'MONGODB_URI'];
+const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error(`❌ Missing required environment variables: ${missingEnv.join(', ')}`);
+  console.error('   Copy .env.example to .env and fill in the values.');
+  process.exit(1);
+}
+
+// Optional env var warnings
+if (process.env.GROQ_API_KEY) {
+  console.log('✅ Groq API key loaded — AI features enabled (llama-3.3-70b-versatile)');
+} else {
+  console.warn('⚠️  GROQ_API_KEY not set — AI features will use offline fallback');
+}
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+  console.warn('⚠️  GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET not set — Google OAuth disabled');
+}
+
 // Import routes
 const authRoutes = require('./backend/routes/auth');
 const testRoutes = require('./backend/routes/tests');
@@ -18,8 +37,19 @@ const userRoutes = require('./backend/routes/user');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS — restrict to same origin in production
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? [process.env.BASE_URL].filter(Boolean)
+  : ['http://localhost:5000', 'http://127.0.0.1:5000'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (same-origin, curl, mobile apps)
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));

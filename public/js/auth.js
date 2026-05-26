@@ -29,15 +29,18 @@ if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
+        const btn = loginForm.querySelector('[type="submit"]');
+        const originalHTML = btn.innerHTML;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
         
         try {
             const response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
             
@@ -49,21 +52,21 @@ if (loginForm) {
             }
             
             if (response.ok) {
-                // Store token and user data
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                
-                showToast('Login successful! Redirecting...', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
+                const isDemo = data.message && data.message.includes('Demo Mode');
+                showToast(isDemo ? '⚠️ Demo Mode: No database connected. Data won\'t persist.' : 'Login successful! Redirecting...', isDemo ? 'warning' : 'success');
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, isDemo ? 2000 : 1000);
             } else {
-                showToast(data.error || 'Login failed', 'error');
+                showToast(data.error || 'Login failed. Check your credentials.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
             }
         } catch (error) {
             console.error('Login error:', error);
-            showToast('An error occurred. Please try again.', 'error');
+            showToast('Cannot reach server. Make sure the backend is running.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
         }
     });
 }
@@ -74,43 +77,54 @@ if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
-        
-        // Validation
+        const btn = signupForm.querySelector('[type="submit"]');
+        const originalHTML = btn.innerHTML;
+
+        if (!name) {
+            showToast('Please enter your full name', 'error');
+            return;
+        }
         if (password.length < 6) {
             showToast('Password must be at least 6 characters', 'error');
             return;
         }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
         
         try {
             const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password })
             });
             
-            const data = await response.json();
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                data = { error: 'Unable to parse server response' };
+            }
             
             if (response.ok) {
-                // Store token and user data
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                
-                showToast('Account created successfully! Redirecting...', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
+                const isDemo = data.message && data.message.includes('Demo Mode');
+                showToast(isDemo ? '⚠️ Demo Mode: No database connected. Data won\'t persist.' : 'Account created! Redirecting...', isDemo ? 'warning' : 'success');
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, isDemo ? 2000 : 1000);
             } else {
-                showToast(data.error || 'Signup failed', 'error');
+                showToast(data.error || 'Signup failed. Please try again.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
             }
         } catch (error) {
             console.error('Signup error:', error);
-            showToast('An error occurred. Please try again.', 'error');
+            showToast('Cannot reach server. Make sure the backend is running.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
         }
     });
 }
@@ -152,3 +166,51 @@ document.querySelectorAll('.btn-google').forEach(btn => {
         window.location.href = `${API_URL}/auth/google`;
     });
 });
+
+// Forgot Password
+const forgotLink = document.getElementById('forgotPasswordLink');
+if (forgotLink) {
+    forgotLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = document.getElementById('forgotModal');
+        if (modal) modal.style.display = 'flex';
+    });
+}
+
+const sendResetBtn = document.getElementById('sendResetBtn');
+if (sendResetBtn) {
+    sendResetBtn.addEventListener('click', async () => {
+        const email = document.getElementById('forgotEmail').value.trim();
+        if (!email) {
+            showToast('Please enter your email address', 'error');
+            return;
+        }
+
+        sendResetBtn.textContent = 'Sending...';
+        sendResetBtn.disabled = true;
+
+        try {
+            const response = await fetch(`${API_URL}/auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            document.getElementById('forgotModal').style.display = 'none';
+
+            if (response.ok) {
+                showToast('Password reset link sent! Check your email.', 'success');
+            } else {
+                // Don't reveal whether email exists — show generic message
+                showToast('If that email is registered, a reset link has been sent.', 'success');
+            }
+        } catch (err) {
+            showToast('If that email is registered, a reset link has been sent.', 'success');
+            document.getElementById('forgotModal').style.display = 'none';
+        } finally {
+            sendResetBtn.textContent = 'Send Link';
+            sendResetBtn.disabled = false;
+        }
+    });
+}

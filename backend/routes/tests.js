@@ -42,6 +42,7 @@ router.post('/submit', auth, async (req, res) => {
 
     for (const answer of answers) {
       const question = await Question.findById(answer.questionId);
+      if (!question) continue; // skip if question not found (e.g. demo mode)
       const isCorrect = question.correctAnswer === answer.selectedAnswer;
       
       if (isCorrect) {
