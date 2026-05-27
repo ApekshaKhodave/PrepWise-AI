@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Mock Interview - PrepWise AI</title>
+    <meta name="description" content="Practice mock interviews with AI feedback. Technical, HR, and behavioral rounds for top companies.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/interview.css">
@@ -13,8 +14,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
+
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">
                 <i class="fas fa-brain"></i>
@@ -22,38 +24,14 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="aptitude.html" class="nav-item">
-                <i class="fas fa-calculator"></i>
-                <span>Aptitude</span>
-            </a>
-            <a href="coding.html" class="nav-item">
-                <i class="fas fa-code"></i>
-                <span>Coding</span>
-            </a>
-            <a href="resume.html" class="nav-item">
-                <i class="fas fa-file-alt"></i>
-                <span>Resume Analyzer</span>
-            </a>
-            <a href="interview.html" class="nav-item active">
-                <i class="fas fa-microphone"></i>
-                <span>Mock Interview</span>
-            </a>
-            <a href="roadmap.html" class="nav-item">
-                <i class="fas fa-route"></i>
-                <span>Company Roadmaps</span>
-            </a>
-            <a href="leaderboard.html" class="nav-item">
-                <i class="fas fa-trophy"></i>
-                <span>Leaderboard</span>
-            </a>
-            <a href="profile.html" class="nav-item">
-                <i class="fas fa-user"></i>
-                <span>Profile</span>
-            </a>
+            <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="aptitude.html" class="nav-item"><i class="fas fa-calculator"></i><span>Aptitude</span></a>
+            <a href="coding.html" class="nav-item"><i class="fas fa-code"></i><span>Coding</span></a>
+            <a href="resume.html" class="nav-item"><i class="fas fa-file-alt"></i><span>Resume Analyzer</span></a>
+            <a href="interview.html" class="nav-item active"><i class="fas fa-microphone"></i><span>Mock Interview</span></a>
+            <a href="roadmap.html" class="nav-item"><i class="fas fa-route"></i><span>Company Roadmaps</span></a>
+            <a href="leaderboard.html" class="nav-item"><i class="fas fa-trophy"></i><span>Leaderboard</span></a>
+            <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
         </nav>
     </aside>
 
@@ -61,192 +39,365 @@
     <main class="main-content">
         <header class="topbar">
             <div class="topbar-left">
-                <button class="menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
                 <h2>AI Mock Interview</h2>
             </div>
             <div class="topbar-right">
-                <button class="theme-toggle" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
+                <button class="icon-btn" id="themeToggle" title="Toggle theme"><i class="fas fa-moon"></i></button>
                 <div class="user-menu">
-                    <img src="https://ui-avatars.com/api/?name=User&background=6C63FF&color=fff" alt="User" class="user-avatar">
+                    <img src="https://ui-avatars.com/api/?name=User&background=6C63FF&color=fff" alt="User" class="user-avatar" id="userAvatar">
+                    <span class="user-name" id="userName">User</span>
                 </div>
             </div>
         </header>
 
         <div class="dashboard-content">
-            <!-- Interview Setup -->
+
+            <!-- ══ SETUP SECTION ══ -->
             <section class="interview-setup" id="setupSection">
-                <div class="setup-card">
-                    <div class="ai-avatar">
-                        <i class="fas fa-robot"></i>
+                <div class="setup-hero">
+                    <div class="hero-badge"><span>AI-Powered</span></div>
+                    <h1>AI Mock Interview</h1>
+                    <p>Practice with a realistic AI interviewer. Get instant, detailed feedback on every answer.</p>
+                </div>
+
+                <div class="setup-grid">
+                    <!-- Step 1: Interview Type -->
+                    <div class="setup-step">
+                        <div class="step-label"><span class="step-num">1</span> Choose Interview Type</div>
+                        <div class="interview-types">
+                            <div class="type-card selected" data-type="technical" id="typeCard-technical">
+                                <div class="type-icon"><i class="fas fa-laptop-code"></i></div>
+                                <h4>Technical</h4>
+                                <p>DSA, System Design, OOPs, DBMS</p>
+                                <div class="type-tags">
+                                    <span>DSA</span><span>Algorithms</span><span>Design</span>
+                                </div>
+                            </div>
+                            <div class="type-card" data-type="hr" id="typeCard-hr">
+                                <div class="type-icon"><i class="fas fa-handshake"></i></div>
+                                <h4>HR Round</h4>
+                                <p>Behavioral, Motivation, Culture Fit</p>
+                                <div class="type-tags">
+                                    <span>Behavioral</span><span>Culture</span><span>Goals</span>
+                                </div>
+                            </div>
+                            <div class="type-card" data-type="behavioral" id="typeCard-behavioral">
+                                <div class="type-icon"><i class="fas fa-users"></i></div>
+                                <h4>Behavioral</h4>
+                                <p>STAR Method, Leadership, Teamwork</p>
+                                <div class="type-tags">
+                                    <span>STAR</span><span>Leadership</span><span>Conflict</span>
+                                </div>
+                            </div>
+                            <div class="type-card" data-type="system_design" id="typeCard-system_design">
+                                <div class="type-icon"><i class="fas fa-sitemap"></i></div>
+                                <h4>System Design</h4>
+                                <p>Architecture, Scalability, Trade-offs</p>
+                                <div class="type-tags">
+                                    <span>HLD</span><span>LLD</span><span>Scale</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h2>AI Interview Assistant</h2>
-                    <p>Practice with our AI interviewer and get real-time feedback</p>
-                    
-                    <div class="interview-types">
-                        <div class="type-card" data-type="technical">
-                            <i class="fas fa-code"></i>
-                            <h4>Technical</h4>
-                            <p>DSA, System Design, Tech Stack</p>
-                        </div>
-                        <div class="type-card" data-type="hr">
-                            <i class="fas fa-users"></i>
-                            <h4>HR Round</h4>
-                            <p>Behavioral, Situational Questions</p>
-                        </div>
-                        <div class="type-card" data-type="behavioral">
-                            <i class="fas fa-comments"></i>
-                            <h4>Behavioral</h4>
-                            <p>STAR Method, Past Experiences</p>
+
+                    <!-- Step 2: Target Company + Role -->
+                    <div class="setup-step">
+                        <div class="step-label"><span class="step-num">2</span> Target Company & Role</div>
+                        <div class="company-role-grid">
+                            <div class="form-group">
+                                <label>Target Company</label>
+                                <div class="company-chips" id="companyChips">
+                                    <div class="company-chip selected" data-company="General">General</div>
+                                    <div class="company-chip" data-company="Google">Google</div>
+                                    <div class="company-chip" data-company="Amazon">Amazon</div>
+                                    <div class="company-chip" data-company="Microsoft">Microsoft</div>
+                                    <div class="company-chip" data-company="Flipkart">Flipkart</div>
+                                    <div class="company-chip" data-company="TCS">TCS</div>
+                                    <div class="company-chip" data-company="Infosys">Infosys</div>
+                                    <div class="company-chip" data-company="Wipro">Wipro</div>
+                                    <div class="company-chip" data-company="Meta">Meta</div>
+                                    <div class="company-chip" data-company="Apple">Apple</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Role Level</label>
+                                <div class="level-chips" id="levelChips">
+                                    <div class="level-chip selected" data-level="fresher">Fresher</div>
+                                    <div class="level-chip" data-level="junior">Junior (1–3 yrs)</div>
+                                    <div class="level-chip" data-level="mid">Mid (3–5 yrs)</div>
+                                    <div class="level-chip" data-level="senior">Senior (5+ yrs)</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Number of Questions</label>
+                                <div class="q-count-chips" id="qCountChips">
+                                    <div class="qcount-chip" data-count="3">3 <small>Quick</small></div>
+                                    <div class="qcount-chip selected" data-count="5">5 <small>Standard</small></div>
+                                    <div class="qcount-chip" data-count="8">8 <small>Full</small></div>
+                                    <div class="qcount-chip" data-count="10">10 <small>Intensive</small></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Step 3: Camera Check -->
+                    <div class="setup-step">
+                        <div class="step-label"><span class="step-num">3</span> Camera & Mic Check</div>
+                        <div class="camera-check-area">
+                            <div class="camera-preview-wrapper" id="cameraPreviewWrapper">
+                                <video id="setupVideo" autoplay muted playsinline></video>
+                                <div class="camera-placeholder" id="cameraPlaceholder">
+                                    <i class="fas fa-video-slash"></i>
+                                    <p>Camera not enabled</p>
+                                    <button class="btn btn-outline btn-sm" id="enableCameraBtn">
+                                        <i class="fas fa-video"></i> Enable Camera
+                                    </button>
+                                </div>
+                                <div class="camera-badge" id="cameraBadge" style="display:none">
+                                    <i class="fas fa-circle" style="color:#10b981"></i> Live
+                                </div>
+                            </div>
+                            <div class="device-checks">
+                                <div class="check-item" id="checkCamera">
+                                    <i class="fas fa-video"></i>
+                                    <span>Camera</span>
+                                    <span class="check-status pending" id="cameraStatus">Not checked</span>
+                                </div>
+                                <div class="check-item" id="checkMic">
+                                    <i class="fas fa-microphone"></i>
+                                    <span>Microphone</span>
+                                    <span class="check-status pending" id="micStatus">Not checked</span>
+                                </div>
+                                <p class="check-note">Camera is optional — you can still do the interview without it.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setup-footer">
                     <button class="btn btn-primary btn-lg" id="startInterviewBtn">
-                        <i class="fas fa-play"></i> Start Interview
+                        <i class="fas fa-play-circle"></i> Start Interview
                     </button>
+                    <p class="setup-hint">Your answers are analyzed by Groq AI for real feedback</p>
                 </div>
             </section>
 
-            <!-- Interview Interface -->
-            <section class="interview-interface" id="interviewSection" style="display: none;">
-                <div class="interview-grid">
-                    <!-- Video Section -->
-                    <div class="video-section">
-                        <div class="video-placeholder">
-                            <i class="fas fa-video"></i>
-                            <p>Camera Preview</p>
+            <!-- ══ INTERVIEW SECTION ══ -->
+            <section class="interview-interface" id="interviewSection" style="display:none;">
+
+                <!-- Top bar: progress + timer -->
+                <div class="interview-topbar">
+                    <div class="interview-meta">
+                        <span class="meta-badge" id="interviewTypeBadge">Technical</span>
+                        <span class="meta-company" id="interviewCompanyBadge">General</span>
+                    </div>
+                    <div class="progress-wrap">
+                        <div class="progress-track">
+                            <div class="progress-fill" id="progressFill"></div>
                         </div>
-                        <div class="ai-assistant">
-                            <div class="assistant-avatar">
-                                <i class="fas fa-robot"></i>
+                        <span class="progress-label">Q <span id="questionNumber">1</span> / <span id="totalQuestions">5</span></span>
+                    </div>
+                    <div class="interview-timer-wrap">
+                        <i class="fas fa-stopwatch"></i>
+                        <span id="questionTimer" class="interview-timer">00:00</span>
+                    </div>
+                </div>
+
+                <!-- Main area -->
+                <div class="interview-arena">
+
+                    <!-- Left: Camera + AI -->
+                    <div class="arena-left">
+                        <!-- User camera -->
+                        <div class="user-video-card">
+                            <video id="interviewVideo" autoplay muted playsinline></video>
+                            <div class="video-off-overlay" id="videoOffOverlay">
+                                <div class="video-avatar"><i class="fas fa-user"></i></div>
+                                <p>Camera off</p>
                             </div>
-                            <div class="assistant-status">
-                                <span class="status-dot"></span>
-                                <span>AI Listening...</span>
+                            <div class="video-label">You</div>
+                            <div class="video-controls-overlay">
+                                <button class="vid-ctrl-btn" id="toggleCameraBtn" title="Toggle camera">
+                                    <i class="fas fa-video" id="cameraIcon"></i>
+                                </button>
+                                <button class="vid-ctrl-btn" id="toggleMicInterviewBtn" title="Toggle mic">
+                                    <i class="fas fa-microphone" id="interviewMicIcon"></i>
+                                </button>
                             </div>
+                        </div>
+
+                        <!-- AI Interviewer -->
+                        <div class="ai-interviewer-card">
+                            <div class="ai-avatar-ring" id="aiRing">
+                                <div class="ai-avatar-inner"><i class="fas fa-robot"></i></div>
+                            </div>
+                            <div class="ai-info">
+                                <span class="ai-name">PrepWise AI</span>
+                                <span class="ai-status-line" id="aiStatusLine">
+                                    <span class="ai-dot"></span> Listening…
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Quick tips -->
+                        <div class="quick-tip-card" id="quickTip">
+                            <i class="fas fa-lightbulb"></i>
+                            <p id="tipText">Use the STAR method: Situation, Task, Action, Result.</p>
                         </div>
                     </div>
 
-                    <!-- Question Section -->
-                    <div class="question-section">
-                        <div class="question-header">
-                            <h3>Question <span id="questionNumber">1</span> of <span id="totalQuestions">5</span></h3>
-                            <div class="timer">
-                                <i class="fas fa-clock"></i>
-                                <span id="questionTimer">00:00</span>
+                    <!-- Right: Question + Answer -->
+                    <div class="arena-right">
+                        <div class="question-card">
+                            <div class="question-tag" id="questionTag">Conceptual</div>
+                            <p class="question-text" id="currentQuestion">Loading your question…</p>
+                            <div class="question-hint" id="questionHint"></div>
+                        </div>
+
+                        <div class="answer-card">
+                            <div class="answer-header">
+                                <span>Your Answer</span>
+                                <div class="answer-actions-top">
+                                    <button class="btn-ghost" id="micBtn" title="Voice input">
+                                        <i class="fas fa-microphone" id="micIcon"></i>
+                                        <span id="micLabel">Use voice</span>
+                                    </button>
+                                    <button class="btn-ghost" id="clearBtn" title="Clear">
+                                        <i class="fas fa-eraser"></i>
+                                    </button>
+                                </div>
                             </div>
+                            <textarea id="answerInput" placeholder="Type your answer here… or click the mic to speak." rows="8"></textarea>
+                            <div class="char-count"><span id="charCount">0</span> characters</div>
                         </div>
-                        <div class="question-content">
-                            <p id="currentQuestion">Loading question...</p>
-                        </div>
-                        <div class="answer-section">
-                            <textarea id="answerInput" placeholder="Type your answer here..." rows="8"></textarea>
-                            <div class="answer-actions">
-                                <button class="btn btn-outline" onclick="skipQuestion()">
-                                    <i class="fas fa-forward"></i> Skip
-                                </button>
-                                <button class="btn btn-primary" onclick="submitAnswer()">
-                                    <i class="fas fa-check"></i> Submit Answer
-                                </button>
-                            </div>
-                        </div>
-                        <div class="voice-controls">
-                            <button class="btn btn-icon" id="micBtn">
-                                <i class="fas fa-microphone"></i>
+
+                        <div class="interview-actions">
+                            <button class="btn btn-outline" id="skipBtn">
+                                <i class="fas fa-forward-step"></i> Skip
                             </button>
-                            <p>Click to use voice input</p>
+                            <button class="btn btn-primary" id="submitBtn">
+                                <i class="fas fa-check-circle"></i> Submit Answer
+                            </button>
+                            <button class="btn btn-danger-outline" id="endBtn">
+                                <i class="fas fa-stop-circle"></i> End Interview
+                            </button>
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-outline end-interview-btn" onclick="endInterview()">
-                    <i class="fas fa-stop"></i> End Interview
-                </button>
             </section>
 
-            <!-- Feedback Section -->
-            <section class="feedback-section" id="feedbackSection" style="display: none;">
-                <div class="feedback-header">
-                    <i class="fas fa-trophy"></i>
-                    <h2>Interview Completed!</h2>
-                    <p>Here's your detailed performance analysis</p>
+            <!-- ══ AI THINKING OVERLAY ══ -->
+            <div class="ai-thinking-overlay" id="aiThinking" style="display:none;">
+                <div class="thinking-card">
+                    <div class="thinking-spinner">
+                        <i class="fas fa-robot fa-spin"></i>
+                    </div>
+                    <h3>AI Analyzing Your Answers…</h3>
+                    <p>Groq AI is evaluating your responses for accuracy, clarity, and confidence.</p>
+                    <div class="thinking-dots"><span></span><span></span><span></span></div>
+                </div>
+            </div>
+
+            <!-- ══ FEEDBACK SECTION ══ -->
+            <section class="feedback-section" id="feedbackSection" style="display:none;">
+
+                <div class="feedback-hero">
+                    <div class="feedback-icon-wrap"><i class="fas fa-trophy"></i></div>
+                    <h2>Interview Complete!</h2>
+                    <p>Here's your AI-powered performance breakdown</p>
+                    <div class="interview-meta-tags">
+                        <span id="fbType"></span>
+                        <span id="fbCompany"></span>
+                        <span id="fbDuration"></span>
+                    </div>
                 </div>
 
-                <div class="overall-score">
-                    <div class="score-circle-container">
-                        <svg class="score-circle" viewBox="0 0 200 200">
-                            <circle cx="100" cy="100" r="90" class="score-bg" />
-                            <circle cx="100" cy="100" r="90" class="score-fill" id="overallScoreCircle" />
+                <!-- Overall Score -->
+                <div class="overall-score-section">
+                    <div class="score-donut-wrap">
+                        <svg class="score-donut" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="85" class="donut-bg"/>
+                            <circle cx="100" cy="100" r="85" class="donut-fill" id="scoreDonut"/>
                         </svg>
-                        <div class="score-text">
-                            <h2 id="overallScore">0</h2>
-                            <p>Overall Score</p>
+                        <div class="donut-center">
+                            <span class="donut-score" id="overallScore">0</span>
+                            <span class="donut-label">/ 100</span>
+                            <span class="donut-grade" id="overallGrade">-</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <h4>Confidence</h4>
-                        <div class="metric-bar">
-                            <div class="metric-fill" id="confidenceBar"></div>
+                <!-- Metrics -->
+                <div class="metrics-row">
+                    <div class="metric-pill">
+                        <div class="metric-ring" id="confRing" data-value="0">
+                            <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" class="ring-bg"/><circle cx="30" cy="30" r="24" class="ring-fill" id="confCircle"/></svg>
+                            <span id="confidenceScore">0%</span>
                         </div>
-                        <span id="confidenceScore">0%</span>
+                        <p>Confidence</p>
                     </div>
-                    <div class="metric-card">
-                        <h4>Communication</h4>
-                        <div class="metric-bar">
-                            <div class="metric-fill" id="communicationBar"></div>
+                    <div class="metric-pill">
+                        <div class="metric-ring" id="commRing" data-value="0">
+                            <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" class="ring-bg"/><circle cx="30" cy="30" r="24" class="ring-fill" id="commCircle"/></svg>
+                            <span id="communicationScore">0%</span>
                         </div>
-                        <span id="communicationScore">0%</span>
+                        <p>Communication</p>
                     </div>
-                    <div class="metric-card">
-                        <h4>Technical Accuracy</h4>
-                        <div class="metric-bar">
-                            <div class="metric-fill" id="technicalBar"></div>
+                    <div class="metric-pill">
+                        <div class="metric-ring" id="techRing" data-value="0">
+                            <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" class="ring-bg"/><circle cx="30" cy="30" r="24" class="ring-fill" id="techCircle"/></svg>
+                            <span id="technicalScore">0%</span>
                         </div>
-                        <span id="technicalScore">0%</span>
+                        <p>Technical</p>
                     </div>
-                    <div class="metric-card">
-                        <h4>Clarity</h4>
-                        <div class="metric-bar">
-                            <div class="metric-fill" id="clarityBar"></div>
+                    <div class="metric-pill">
+                        <div class="metric-ring" id="clarRing" data-value="0">
+                            <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" class="ring-bg"/><circle cx="30" cy="30" r="24" class="ring-fill" id="clarCircle"/></svg>
+                            <span id="clarityScore">0%</span>
                         </div>
-                        <span id="clarityScore">0%</span>
+                        <p>Clarity</p>
                     </div>
                 </div>
 
-                <div class="feedback-details">
-                    <div class="feedback-card">
+                <!-- Per-question breakdown -->
+                <div class="question-breakdown" id="questionBreakdown">
+                    <h3><i class="fas fa-list-check"></i> Question-by-Question Feedback</h3>
+                    <div id="breakdownList"></div>
+                </div>
+
+                <!-- Strengths & Improvements -->
+                <div class="feedback-cols">
+                    <div class="feedback-col strengths-col">
                         <h4><i class="fas fa-star"></i> Strengths</h4>
                         <ul id="strengthsList"></ul>
                     </div>
-                    <div class="feedback-card">
-                        <h4><i class="fas fa-lightbulb"></i> Areas to Improve</h4>
+                    <div class="feedback-col improve-col">
+                        <h4><i class="fas fa-arrow-trend-up"></i> Areas to Improve</h4>
                         <ul id="improvementsList"></ul>
                     </div>
                 </div>
 
                 <div class="feedback-actions">
-                    <button class="btn btn-outline" onclick="viewHistory()">View History</button>
-                    <button class="btn btn-primary" onclick="retakeInterview()">Take Another Interview</button>
+                    <button class="btn btn-outline" onclick="viewHistory()"><i class="fas fa-history"></i> View History</button>
+                    <button class="btn btn-primary" onclick="retakeInterview()"><i class="fas fa-redo"></i> Try Again</button>
                 </div>
             </section>
 
-            <!-- Interview History -->
-            <section class="history-section">
-                <h3>Interview History</h3>
+            <!-- ══ HISTORY SECTION ══ -->
+            <section class="history-section" id="historySection">
+                <div class="section-header-row">
+                    <h3><i class="fas fa-history"></i> Past Interviews</h3>
+                </div>
                 <div class="history-grid" id="historyGrid">
-                    <!-- History items will be loaded dynamically -->
+                    <p class="empty-history">No past interviews yet. Start your first one above!</p>
                 </div>
             </section>
+
         </div>
     </main>
 
     <div id="toast" class="toast"></div>
-
     <script src="js/interview.js"></script>
 </body>
 </html>
