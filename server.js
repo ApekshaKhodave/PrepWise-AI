@@ -7,13 +7,15 @@ const path = require('path');
 // Load environment variables
 dotenv.config();
 
-// Validate required environment variables before starting
+// Validate required environment variables
 const REQUIRED_ENV = ['JWT_SECRET', 'MONGODB_URI'];
 const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
 if (missingEnv.length > 0) {
-  console.error(`❌ Missing required environment variables: ${missingEnv.join(', ')}`);
-  console.error('   Copy .env.example to .env and fill in the values.');
-  process.exit(1);
+  console.error(`❌ Missing environment variables: ${missingEnv.join(', ')}`);
+  if (require.main === module) {
+    console.error('   Add these to your .env file or Vercel environment settings.');
+    process.exit(1);
+  }
 }
 
 // Optional env var warnings
@@ -24,6 +26,33 @@ if (process.env.GROQ_API_KEY) {
 }
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   console.warn('⚠️  GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET not set — Google OAuth disabled');
+}
+
+// ─── MongoDB connection cache (critical for Vercel serverless) ────────────────
+// Vercel spins up a new Lambda for each request. Without caching, every request
+// opens a fresh DB connection and may time out before it's ready.
+let cachedConnection = null;
+
+async function connectDB() {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    return cachedConnection;
+  }
+  try {
+    cachedConnection = await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 5,
+    });
+    console.log('✅ MongoDB Connected');
+    return cachedConnection;
+  } catch (err) {
+    console.error('❌ MongoDB Connection Error:', err.message);
+    cachedConnection = null;
+    return null;
+  }
 }
 
 // Import routes
@@ -37,25 +66,17 @@ const userRoutes = require('./backend/routes/user');
 
 const app = express();
 
-// CORS — restrict to same origin in production
-const allowedOrigins = [
-  'http://localhost:5000',
-  'http://127.0.0.1:5000',
-  'http://localhost:5173',
-  'https://prepwise-ai-gilt.vercel.app'
-];
+// CORS — allow all origins (Vercel handles edge security), configurable via CORS_ORIGIN
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+  : null;
 
 app.use(cors({
-  origin: function(origin, callback) {
-
+  origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-
+    if (!allowedOrigins) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin '${origin}' not allowed`));
   },
   credentials: true
 }));
@@ -63,11 +84,13 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// ─── DB connect middleware (ensures connection before API calls) ───────────────
+app.use('/api', async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
-// API Routes
+// ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/tests', testRoutes);
 app.use('/api/coding', codingRoutes);
@@ -76,40 +99,34 @@ app.use('/api/interview', interviewRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/user', userRoutes);
 
-// Serve frontend pages
-// Explicitly handle common frontend page routes (so paths without .html work)
-app.get(['/login', '/login.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
+// ─── Static files ─────────────────────────────────────────────────────────────
+const publicDir = path.join(__dirname, 'public');
+app.use(express.static(publicDir));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Explicit HTML page routes
+app.get(['/login', '/login.html'], (req, res) => {
+  res.sendFile(path.join(publicDir, 'login.html'));
+});
 app.get(['/signup', '/signup.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+  res.sendFile(path.join(publicDir, 'signup.html'));
+});
+app.get(['/dashboard', '/dashboard.html'], (req, res) => {
+  res.sendFile(path.join(publicDir, 'dashboard.html'));
 });
 
 // Fallback: serve index for all other unmatched routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(publicDir, 'index.html'));
 });
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  connectTimeoutMS: 15000,
-  serverSelectionTimeoutMS: 15000,
-  socketTimeoutMS: 120000,
-})
-.then(() => console.log('✅ MongoDB Connected'))
-.catch((err) => {
-  console.error('❌ MongoDB Connection Error:', err.message);
-  console.log('⚠️  Running in demo mode without database');
-});
-
-// Start server only when running locally
+// ─── Start server locally ─────────────────────────────────────────────────────
 if (require.main === module) {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  connectDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
   });
 }
 
