@@ -12,7 +12,7 @@ const resumeReportSchema = new mongoose.Schema({
   },
   filePath: {
     type: String,
-    required: true
+    default: ''
   },
   atsScore: {
     type: Number,
