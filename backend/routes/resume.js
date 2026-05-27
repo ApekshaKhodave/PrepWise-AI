@@ -1,7 +1,6 @@
 const express = require('express');
 const multer  = require('multer');
 const path    = require('path');
-const fs      = require('fs');
 const pdfParse = require('pdf-parse');
 const Groq    = require('groq-sdk');
 const ResumeReport = require('../models/ResumeReport');
@@ -19,20 +18,9 @@ function getGroq() {
   return groq;
 }
 
-// ─── Upload config ────────────────────────────────────────────
-const uploadDir = path.join(__dirname, '../../uploads/resumes');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename:    (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
-  }
-});
-
+// ─── Upload config (memory storage — Vercel filesystem is read-only) ──────────
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = ['.pdf', '.doc', '.docx'];
@@ -154,15 +142,13 @@ router.post('/analyze', auth, upload.single('resume'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Please upload a resume file' });
 
-    const filePath = req.file.path;
     const fileName = req.file.originalname;
     let resumeText = '';
 
-    // Extract text from PDF
+    // Extract text from PDF (use buffer — no disk access on Vercel)
     if (path.extname(fileName).toLowerCase() === '.pdf') {
       try {
-        const buf = fs.readFileSync(filePath);
-        const parsed = await pdfParse(buf);
+        const parsed = await pdfParse(req.file.buffer);
         resumeText = parsed.text;
       } catch (err) {
         console.warn('PDF parse failed:', err.message);
@@ -187,11 +173,11 @@ router.post('/analyze', auth, upload.single('resume'), async (req, res) => {
       reportData = analyzeTextOffline(resumeText || `Resume file: ${fileName}`);
     }
 
-    // Save to DB
+    // Save report to DB (no file path stored — memory-based upload)
     const report = new ResumeReport({
       userId:   req.userId,
       fileName,
-      filePath: `/uploads/resumes/${req.file.filename}`,
+      filePath: '',
       atsScore: reportData.atsScore,
       analysis: reportData.analysis
     });

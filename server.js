@@ -59,7 +59,7 @@ async function connectDB() {
 const authRoutes = require('./backend/routes/auth');
 const testRoutes = require('./backend/routes/tests');
 const codingRoutes = require('./backend/routes/coding');
-// const resumeRoutes = require('./backend/routes/resume');
+const resumeRoutes = require('./backend/routes/resume');
 const interviewRoutes = require('./backend/routes/interview');
 const leaderboardRoutes = require('./backend/routes/leaderboard');
 const userRoutes = require('./backend/routes/user');
@@ -94,7 +94,7 @@ app.use('/api', async (req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/tests', testRoutes);
 app.use('/api/coding', codingRoutes);
-// app.use('/api/resume', resumeRoutes);
+app.use('/api/resume', resumeRoutes);
 app.use('/api/interview', interviewRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/user', userRoutes);
